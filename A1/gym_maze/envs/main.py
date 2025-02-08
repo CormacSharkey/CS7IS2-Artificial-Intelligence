@@ -4,7 +4,7 @@ import random
 
 def main():
 
-    maze = mze.MazeEnv(maze_size=(20, 20))
+    maze = mze.MazeEnv(maze_size=(10, 10))
 
     print(maze.maze_view.robot)
     print(maze.maze_view.goal)
@@ -18,6 +18,10 @@ def main():
         action = maze.ACTION[random.randrange(4)]
 
         state, reward, done, info = maze.step(action)
+
+        if (done):
+            print("You've reached the goal!")
+            break
 
         # Feed "total_reward" to search function
         total_reward += reward
