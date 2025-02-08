@@ -48,7 +48,7 @@ class MazeView2D:
         if self.__enable_render is True:
             # Create a background
             self.background = pygame.Surface(self.screen.get_size()).convert()
-            self.background.fill((255, 255, 255))
+            self.background.fill((180, 180, 180))
 
             # Create a layer for the maze
             self.maze_layer = pygame.Surface(self.screen.get_size()).convert_alpha()
@@ -130,7 +130,7 @@ class MazeView2D:
 
             # update the screen
             self.screen.blit(self.background, (0, 0))
-            self.screen.blit(self.maze_layer,(0, 0))
+            self.screen.blit(self.maze_layer, (0, 0))
 
             if mode == "human":
                 pygame.display.flip()

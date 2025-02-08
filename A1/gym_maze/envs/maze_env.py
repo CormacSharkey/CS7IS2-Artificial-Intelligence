@@ -3,7 +3,8 @@ import numpy as np
 import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
-from gym_maze.envs.maze_view_2d import MazeView2D
+# from gym_maze.envs.maze_view_2d import MazeView2D
+from maze_view_2d import MazeView2D
 
 
 class MazeEnv(gym.Env):
@@ -19,7 +20,7 @@ class MazeEnv(gym.Env):
         self.enable_render = enable_render
 
         if maze_file:
-            self.maze_view = MazeView2D(maze_name="OpenAI Gym - Maze (%s)" % maze_file,
+            self.maze_view = MazeView2D(maze_name="CS&IS2 Gym - Maze (%s)" % maze_file,
                                         maze_file_path=maze_file,
                                         screen_size=(640, 640), 
                                         enable_render=enable_render)
@@ -31,7 +32,7 @@ class MazeEnv(gym.Env):
                 has_loops = False
                 num_portals = 0
 
-            self.maze_view = MazeView2D(maze_name="OpenAI Gym - Maze (%d x %d)" % maze_size,
+            self.maze_view = MazeView2D(maze_name="CS7IS2 Gym - Maze (%d x %d)" % maze_size,
                                         maze_size=maze_size, screen_size=(640, 640),
                                         has_loops=has_loops, num_portals=num_portals,
                                         enable_render=enable_render)
