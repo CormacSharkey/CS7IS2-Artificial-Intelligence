@@ -92,7 +92,7 @@ class MazeView2D:
         except Exception:
             pass
 
-    def move_robot(self, dir):
+    def step_robot(self, dir):
         if dir not in self.__maze.COMPASS.keys():
             raise ValueError("dir cannot be %s. The only valid dirs are %s."
                              % (str(dir), str(self.__maze.COMPASS.keys())))
@@ -109,6 +109,18 @@ class MazeView2D:
                 self.__robot = np.array(self.maze.get_portal(
                     tuple(self.robot)).teleport(tuple(self.robot)))
             self.__draw_robot(transparency=255)
+
+    def dash_robot(self, destination):
+        # update the drawing
+        self.__draw_robot(transparency=0)
+
+        # move the robot
+        self.__robot = destination
+        # if it's in a portal afterward
+        if self.maze.is_portal(self.robot):
+            self.__robot = np.array(self.maze.get_portal(
+                tuple(self.robot)).teleport(tuple(self.robot)))
+        self.__draw_robot(transparency=255)
 
     def reset_robot(self):
 
@@ -198,7 +210,7 @@ class MazeView2D:
 
             pygame.draw.line(self.maze_layer, colour, line_head, line_tail)
 
-    def __draw_robot(self, colour=(0, 0, 150), transparency=255):
+    def __draw_robot(self, colour=(255, 105, 180), transparency=255):
 
         if self.__enable_render is False:
             return
@@ -207,15 +219,16 @@ class MazeView2D:
         y = int(self.__robot[1] * self.CELL_H + self.CELL_H * 0.5 + 0.5)
         r = int(min(self.CELL_W, self.CELL_H)/5 + 0.5)
 
+        
         pygame.draw.circle(self.maze_layer, colour +
                            (transparency,), (x, y), r)
 
-    def __draw_entrance(self, colour=(0, 0, 150), transparency=235):
+    def __draw_entrance(self, colour=(0, 0, 183), transparency=235):
 
         self.__colour_cell(self.entrance, colour=colour,
                            transparency=transparency)
 
-    def __draw_goal(self, colour=(150, 0, 0), transparency=235):
+    def __draw_goal(self, colour=(0, 175, 0), transparency=235):
 
         self.__colour_cell(self.goal, colour=colour, transparency=transparency)
 
@@ -242,11 +255,33 @@ class MazeView2D:
         if not (isinstance(cell, (list, tuple, np.ndarray)) and len(cell) == 2):
             raise TypeError(
                 "cell must a be a tuple, list, or numpy array of size 2")
+        
+        size = 12
 
-        x = int(cell[0] * self.CELL_W + 0.5 + 1)
-        y = int(cell[1] * self.CELL_H + 0.5 + 1)
-        w = int(self.CELL_W + 0.5 - 1)
-        h = int(self.CELL_H + 0.5 - 1)
+        x = int(cell[0] * self.CELL_W + 0.5 + 1 + (size/2))
+        y = int(cell[1] * self.CELL_H + 0.5 + 1 + (size/2))
+        w = int(self.CELL_W + 0.5 - 1 - size)
+        h = int(self.CELL_H + 0.5 - 1 - size)
+        pygame.draw.rect(self.maze_layer, colour +
+                         (transparency,), (x, y, w, h))
+        pygame.draw.rect(self.background, colour +
+                         (transparency,), (x, y, w, h))
+        
+    def __colour_explored_cell(self, cell, colour, transparency):
+
+        if self.__enable_render is False:
+            return
+
+        if not (isinstance(cell, (list, tuple, np.ndarray)) and len(cell) == 2):
+            raise TypeError(
+                "cell must a be a tuple, list, or numpy array of size 2")
+        
+        size = 18
+
+        x = int(cell[0] * self.CELL_W + 0.5 + 1 + (size/2))
+        y = int(cell[1] * self.CELL_H + 0.5 + 1 + (size/2))
+        w = int(self.CELL_W + 0.5 - 1 - size)
+        h = int(self.CELL_H + 0.5 - 1 - size)
         pygame.draw.rect(self.maze_layer, colour +
                          (transparency,), (x, y, w, h))
         pygame.draw.rect(self.background, colour +

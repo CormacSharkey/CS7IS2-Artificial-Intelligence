@@ -12,7 +12,7 @@ class MazeEnv(gym.Env):
         "render.modes": ["human", "rgb_array"],
     }
 
-    ACTION = ["N", "S", "E", "W"]
+    ACTION = ["N", "W", "E", "S"]
 
     def __init__(self, maze_file=None, maze_size=None, mode=None, enable_render=True):
 
@@ -22,7 +22,7 @@ class MazeEnv(gym.Env):
         if maze_file:
             self.maze_view = MazeView2D(maze_name="CS&IS2 Gym - Maze (%s)" % maze_file,
                                         maze_file_path=maze_file,
-                                        screen_size=(640, 640),
+                                        screen_size=(840, 840),
                                         enable_render=enable_render)
         elif maze_size:
             if mode == "plus":
@@ -34,7 +34,7 @@ class MazeEnv(gym.Env):
 
             self.maze_view = MazeView2D(maze_name="CS7IS2 Gym - Maze (%d x %d)" % maze_size,
                                         maze_size=maze_size, screen_size=(
-                                            640, 640),
+                                            840, 840),
                                         has_loops=has_loops, num_portals=num_portals,
                                         enable_render=enable_render)
         else:
@@ -76,9 +76,25 @@ class MazeEnv(gym.Env):
 
     def step(self, action):
         if isinstance(action, int):
-            self.maze_view.move_robot(self.ACTION[action])
+            self.maze_view.step_robot(self.ACTION[action])
         else:
-            self.maze_view.move_robot(action)
+            self.maze_view.step_robot(action)
+
+        if np.array_equal(self.maze_view.robot, self.maze_view.goal):
+            reward = 1
+            done = True
+        else:
+            reward = -0.1/(self.maze_size[0]*self.maze_size[1])
+            done = False
+
+        self.state = self.maze_view.robot
+
+        info = {}
+
+        return self.state, reward, done, info
+    
+    def dash(self, destination):
+        self.maze_view.dash_robot(destination)
 
         if np.array_equal(self.maze_view.robot, self.maze_view.goal):
             reward = 1
