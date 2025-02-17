@@ -8,8 +8,6 @@ def main():
     maze = mze.MazeEnv(maze_size=(15, 15))
     maze.render()
 
-    input("Enter any key to start")
-
     # Initialized total reward
     total_reward = 0
 

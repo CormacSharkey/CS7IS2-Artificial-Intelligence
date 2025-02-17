@@ -107,4 +107,7 @@ def breadth_first_search(maze: mze.MazeEnv):
 
 #! A* Algorithm
 def a_star(maze: mze.MazeEnv):
-    return
+    # Solve state
+    solved = False
+
+    return solved
