@@ -27,7 +27,8 @@ class MazeEnv(gym.Env):
         elif maze_size:
             if mode == "plus":
                 has_loops = True
-                num_portals = int(round(min(maze_size)/3))
+                # num_portals = int(round(min(maze_size)/3))
+                num_portals = 0
             else:
                 has_loops = False
                 num_portals = 0

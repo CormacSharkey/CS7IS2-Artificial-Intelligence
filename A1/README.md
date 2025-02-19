@@ -1,6 +1,7 @@
 # gym-maze
 
 From: https://github.com/MattChanTK/gym-maze/tree/master
+Edited by: CormacSharkey
 
 A simple 2D maze environment where an agent (blue dot) finds its way from the top left corner (blue square) to the goal at the bottom right corner (red square). 
 The objective is to find the shortest path from the start to the goal.
