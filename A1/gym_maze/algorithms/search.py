@@ -205,47 +205,76 @@ def breadth_first_search(maze: gym.MazeEnv):
             # If the node is not in the open list (or "new f value is smaller"):
                 # Add the node to the open list (f, node coordinates)
 def a_star(maze: gym.MazeEnv):
-        # Solve state
+    # Solve state boolean
     solved = False
 
+    # Visited queue - nodes the agent has already visited
     visited_nodes = deque()
+    # Add the start node to the visited queue
     visited_nodes.append(maze.maze_view.entrance)
 
-    search_nodes = []
-    tiebreaker = count()
-    heapq.heappush(search_nodes, (0,  next(tiebreaker), maze.maze_view.entrance, 0))
-
+    # Initialize 
     running_g = 0
 
+    # Search queue - nodes the agent is planning on visiting
+    search_nodes = []
+    # Counter object - used as a tiebreaker when adding nodes to the search queue
+    tiebreaker = count()
+    # Heapify the search queue and add start to the priority queue
+    heapq.heappush(search_nodes, (0,  next(tiebreaker), maze.maze_view.entrance, running_g))
+
+    # Initialize the g value as 0 at start
+    running_g = 0
+
+    # While there are nodes in the search priority queue - there are places to visited 
     while (len(search_nodes) > 0):
+        # Pop the next node from the search priority queue - priority queue pop
         next_node = heapq.heappop(search_nodes)
         
+        # Move the agent to the next node and colour the path
         state, reward, done = move_agent(maze, next_node[2], "cyan")
 
+        # Increment g after moving the agent - the path cost has increase by 1
         running_g = next_node[3] + 1
 
+        # If the current node is the goal, then the maze is solved
+        # Set solved status as True
+        # Break out of the search loop
         if (done):
             solved = True
             break
 
+        # Add the visited node to the visited queue
         visited_nodes.append(next_node[2])
 
+        # For every direction available (N, E, S, W)
         for dir in maze.ACTION:
+            # Calculate the neighbour given a direction
             future_node = (next_node[2] + np.array(maze.maze_view.maze.COMPASS[dir]))
+            # If the neighbour has not been visited and there is no wall between the agent's node and the neighbour
             if (not any((future_node == elem).all() for elem in visited_nodes)) and (maze.maze_view.maze.is_open(next_node[2], dir)):
+                # If the neighbour is the goal
                 if (future_node == maze.maze_view.goal).all():
-                    # state, reward, done, info = maze.dash(maze.maze_view.goal)
-                    # maze.maze_view._MazeView2D__colour_explored_cell(state, (187, 165, 61), 180)
-                    # maze.render()
+                    # Move the agent to the neighbour and break the loop - maze solved
                     state, reward, done = move_agent(maze, maze.maze_view.goal, "cyan")
                     break
+                # Else - the neighbour is not the goal
                 else:
+                    # Calculate the new f score using the current g and the current node
                     new_f = calculate_f(maze, running_g, future_node)
+                    # If the neighbour is not already in the search priority queue
                     if (not any((future_node == elem[2]).all() for elem in search_nodes)):
+                        # Push the neighbour onto the priority queue
+                        # Include their f score, the tiebreaker, the node and the g score
                         heapq.heappush(search_nodes, (new_f,  next(tiebreaker), future_node, running_g))
 
+        # If the current node is the goal, then the maze is solved
+        # Set solved status as True
+        # Break out of the search loop
         if (done):
             solved = True
             break
 
+    # Return the solved status
+    # In theory, if there is a solution to the given maze, will always return true
     return solved
