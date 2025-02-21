@@ -15,12 +15,12 @@ def main():
     total_reward = 0
 
     # Call the search algorithm
-    # solved = search.breadth_first_search(maze)
-    # maze.reset()
-    # time.sleep(5)
-    # solved = search.depth_first_search(maze)
-    # maze.reset()
-    # time.sleep(5)
+    solved = search.breadth_first_search(maze)
+    maze.reset()
+    time.sleep(5)
+    solved = search.depth_first_search(maze)
+    maze.reset()
+    time.sleep(5)
     solved = search.a_star(maze)
     maze.reset()
     time.sleep(5)
@@ -29,10 +29,6 @@ def main():
     if (solved):
         print("Well done! Maze solved!")
 
-        # for node in path:
-        #     maze.maze_view._MazeView2D__colour_cell(node, (10, 128, 64), 200)
-        #     maze.render()
-    
     # If the algorithm did not solve it (should be impossible), print a notification
     else:
         print("Oh No! Maze unsolved!")
