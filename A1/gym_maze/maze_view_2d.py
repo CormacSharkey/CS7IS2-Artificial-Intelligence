@@ -1,4 +1,5 @@
 import pygame
+import pygame.freetype
 import random
 import numpy as np
 import os
@@ -16,6 +17,8 @@ class MazeView2D:
         self.clock = pygame.time.Clock()
         self.__game_over = False
         self.__enable_render = enable_render
+
+        self.__font = pygame.font.SysFont("Times New Roman", 16)
 
         # Load a maze
         if maze_file_path is None:
@@ -82,6 +85,17 @@ class MazeView2D:
             raise e
         else:
             return img_output
+        
+    def update_mdp(self, values, mode="human"):
+        try:
+            img_output = self.__view_update_mdp(values, mode)
+            self.__controller_update()
+        except Exception as e:
+            self.__game_over = True
+            self.quit_game()
+            raise e
+        else:
+            return img_output
 
     def quit_game(self):
         try:
@@ -122,6 +136,40 @@ class MazeView2D:
                 tuple(self.robot)).teleport(tuple(self.robot)))
         self.__draw_robot(transparency=255)
 
+    def show_values(self, values):
+        size = 10
+
+        for x in range(self.maze_size[0]):
+            for y in range(self.maze_size[1]):
+                if not (x == 0 and y == 0) and not (x == self.maze_size[0]-1 and y == self.maze_size[1]-1):
+                    position = ([x, y])
+                    value = values[x][y]
+
+                    pos_x = int(position[0] * self.CELL_W + 0.5 + 1 + (size/2))
+                    pos_y = int(position[1] * self.CELL_H + 0.5 + 1 + (size/2))
+                    w = int(self.CELL_W + 0.5 - 1 - size)
+                    h = int(self.CELL_H + 0.5 - 1 - size)
+
+                    pygame.draw.rect(self.maze_layer, (230, 230, 230) +
+                         (0,), (pos_x, pos_y, w, h))
+                    pygame.draw.rect(self.background, (230, 230, 230) +
+                         (0,), (pos_x, pos_y, w, h))
+
+                    self.maze_layer.blit(self.__font.render(str(round(value, 2)), 1, (0, 0, 0)), (pos_x+w/5, pos_y+h/4))
+
+                elif (x == self.maze_size[0]-1 and y == self.maze_size[1]-1):
+                    position = ([x, y])
+                    value = values[x][y]
+
+                    pos_x = int(position[0] * self.CELL_W + 0.5 + 1 + (size/2))
+                    pos_y = int(position[1] * self.CELL_H + 0.5 + 1 + (size/2))
+                    w = int(self.CELL_W + 0.5 - 1 - size)
+                    h = int(self.CELL_H + 0.5 - 1 - size)
+
+                    self.maze_layer.blit(self.__font.render(str(round(value, 2)), 1, (0, 0, 0)), (pos_x+w/5, pos_y+h/4))
+
+        pygame.display.update()
+
     def reset_robot(self):
 
         self.__draw_robot(transparency=0)
@@ -142,6 +190,25 @@ class MazeView2D:
             self.__draw_goal()
             self.__draw_portals()
             self.__draw_robot()
+
+            # update the screen
+            self.screen.blit(self.background, (0, 0))
+            self.screen.blit(self.maze_layer, (0, 0))
+
+            if mode == "human":
+                pygame.display.flip()
+
+            return np.flipud(np.rot90(pygame.surfarray.array3d(pygame.display.get_surface())))
+        
+    def __view_update_mdp(self, values, mode="human"):
+        if not self.__game_over:
+            # update the robot's position
+            self.__draw_entrance()
+            self.__draw_goal()
+            self.__draw_portals()
+            self.__draw_robot()
+
+            self.show_values(values)
 
             # update the screen
             self.screen.blit(self.background, (0, 0))

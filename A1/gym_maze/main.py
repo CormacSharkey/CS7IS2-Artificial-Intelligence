@@ -1,5 +1,6 @@
 import maze_env as gym
 import algorithms.search as search
+import algorithms.mdp as mdp
 import random
 import time
 
@@ -7,23 +8,27 @@ import time
 def main():
     # Setup the maze environment and render it
     # maze = gym.MazeEnv(maze_file="maze2d_10x10.npy", maze_size=(15, 15))
-    # maze = gym.MazeEnv(maze_size=(20, 20), mode="plus")
-    maze = gym.MazeEnv(maze_size=(20, 20))
+    maze = gym.MazeEnv(maze_size=(10, 10), mode="plus")
+    # maze = gym.MazeEnv(maze_size=(10, 10))
     maze.render()
 
     # Initialized total reward
     total_reward = 0
 
+    solved = False
+
     # Call the search algorithm
-    solved = search.breadth_first_search(maze)
-    maze.reset()
-    time.sleep(5)
-    solved = search.depth_first_search(maze)
-    maze.reset()
-    time.sleep(5)
-    solved = search.a_star(maze)
-    maze.reset()
-    time.sleep(5)
+    # solved = search.breadth_first_search(maze)
+    # maze.reset()
+    # time.sleep(5)
+    # solved = search.depth_first_search(maze)
+    # maze.reset()
+    # time.sleep(5)
+    # solved = search.a_star(maze)
+    # maze.reset()
+    # time.sleep(5)
+
+    solved = mdp.mdp_value_iteration(maze)
 
     # If the algorithm solved the maze, print a notification and show the path
     if (solved):
