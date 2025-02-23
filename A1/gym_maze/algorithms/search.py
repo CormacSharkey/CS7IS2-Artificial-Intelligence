@@ -10,7 +10,7 @@ from itertools import count
 # For the current agent state (node), check if any surrounding neighbours (N, E, S, W) are valid
 # If they are, add them to a queue of next steps and return the queue
 # Valid = the neighbour has never been visited before and there is no wall between the agent's node and the neighbour
-def check_neighbour(maze: gym.MazeEnv, visited: deque):
+def check_neighbour(maze: gym.MazeEnv, visited: deque, path):
     # Create a queue of the next steps
     next_steps = deque()
 
@@ -23,6 +23,9 @@ def check_neighbour(maze: gym.MazeEnv, visited: deque):
         if (not any((future_state == elem).all() for elem in visited)) and (maze.maze_view.maze.is_open(maze.maze_view.robot, dir)):
             # Add it to the next steps queue
             next_steps.append(future_state)
+
+            path[tuple(future_state)] = maze.maze_view.robot
+
 
     # After checking all possible neighbours, return the queue
     return next_steps
@@ -90,10 +93,12 @@ def depth_first_search(maze: gym.MazeEnv):
     # Add the start node to the visited queue
     visited_nodes.append(maze.maze_view.entrance)
 
+    path = {}
+
     # Search stack - nodes the agent is planning on visiting
     search_moves = deque()
     # Get a queue of valid neighbours the agent can visit from the current node
-    next_steps = check_neighbour(maze, visited_nodes)
+    next_steps = check_neighbour(maze, visited_nodes, path)
 
     # For every node in the neighbours queue
     for node in next_steps:
@@ -115,7 +120,7 @@ def depth_first_search(maze: gym.MazeEnv):
         state, reward, done = move_agent(maze, next_node, "purple")
 
         # Get a queue of valid neighbours the agent can visit from the current node
-        next_steps = check_neighbour(maze, visited_nodes)
+        next_steps = check_neighbour(maze, visited_nodes, path)
 
         # If there are valid neighbours
         if (len(next_steps) != 0):
@@ -135,7 +140,7 @@ def depth_first_search(maze: gym.MazeEnv):
 
     # Return the solved status
     # In theory, if there is a solution to the given maze, will always return true
-    return solved
+    return solved, path
 
 
 #! BFS Algorithm - FIFO
@@ -153,10 +158,12 @@ def breadth_first_search(maze: gym.MazeEnv):
     # Add the start node to the visited queue
     visited_nodes.append(maze.maze_view.entrance)
 
+    path = {}
+
     # Search queue - nodes the agent is planning on visiting
     search_moves = deque()
     # Get a queue of valid neighbours the agent can visit from the current node
-    next_steps = check_neighbour(maze, visited_nodes)
+    next_steps = check_neighbour(maze, visited_nodes, path)
 
     # For every node in the neighbours queue
     for node in next_steps:
@@ -178,7 +185,7 @@ def breadth_first_search(maze: gym.MazeEnv):
         state, reward, done = move_agent(maze, next_node, "gold")
 
         # Get a queue of valid neighbours the agent can visit from the current node
-        next_steps = check_neighbour(maze, visited_nodes)
+        next_steps = check_neighbour(maze, visited_nodes, path)
 
         # If there are valid neighbours
         if (len(next_steps) != 0):
@@ -198,7 +205,7 @@ def breadth_first_search(maze: gym.MazeEnv):
 
     # Return the solved status
     # In theory, if there is a solution to the given maze, will always return true
-    return solved
+    return solved, path
 
 
 #! A* Algorithm
@@ -229,6 +236,8 @@ def a_star(maze: gym.MazeEnv):
 
     # Initialize
     running_g = 0
+
+    path = {}
 
     # Search queue - nodes the agent is planning on visiting
     search_nodes = []
@@ -271,6 +280,7 @@ def a_star(maze: gym.MazeEnv):
             if (not any((future_node == elem).all() for elem in visited_nodes)) and (maze.maze_view.maze.is_open(next_node[2], dir)):
                 # If the neighbour is the goal
                 if (future_node == maze.maze_view.goal).all():
+                    path[tuple(future_node)] = maze.maze_view.robot
                     # Move the agent to the neighbour and break the loop - maze solved
                     state, reward, done = move_agent(
                         maze, maze.maze_view.goal, "cyan")
@@ -285,6 +295,9 @@ def a_star(maze: gym.MazeEnv):
                         # Include their f score, the tiebreaker, the node and the g score
                         heapq.heappush(search_nodes, (new_f,  next(
                             tiebreaker), future_node, running_g))
+                        
+                        # next_node[2]
+                        path[tuple(future_node)] = maze.maze_view.robot
 
         # If the current node is the goal, then the maze is solved
         # Set solved status as True
@@ -295,4 +308,4 @@ def a_star(maze: gym.MazeEnv):
 
     # Return the solved status
     # In theory, if there is a solution to the given maze, will always return true
-    return solved
+    return solved, path

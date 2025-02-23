@@ -86,9 +86,9 @@ class MazeView2D:
         else:
             return img_output
         
-    def update_mdp(self, values, mode="human"):
+    def update_mdp(self, values, directions, actions, mode="human"):
         try:
-            img_output = self.__view_update_mdp(values, mode)
+            img_output = self.__view_update_mdp(values, directions, actions, mode)
             self.__controller_update()
         except Exception as e:
             self.__game_over = True
@@ -136,12 +136,13 @@ class MazeView2D:
                 tuple(self.robot)).teleport(tuple(self.robot)))
         self.__draw_robot(transparency=255)
 
-    def show_values(self, values):
+    def show_values(self, values, directions, actions):
         size = 10
 
         for x in range(self.maze_size[0]):
             for y in range(self.maze_size[1]):
-                if not (x == 0 and y == 0) and not (x == self.maze_size[0]-1 and y == self.maze_size[1]-1):
+                # if not (x == 0 and y == 0) and not (x == self.maze_size[0]-1 and y == self.maze_size[1]-1):
+                if not (x == self.maze_size[0]-1 and y == self.maze_size[1]-1):
                     position = ([x, y])
                     value = values[x][y]
 
@@ -150,11 +151,25 @@ class MazeView2D:
                     w = int(self.CELL_W + 0.5 - 1 - size)
                     h = int(self.CELL_H + 0.5 - 1 - size)
 
-                    pygame.draw.rect(self.maze_layer, (230, 230, 230) +
-                         (0,), (pos_x, pos_y, w, h))
-                    pygame.draw.rect(self.background, (230, 230, 230) +
-                         (0,), (pos_x, pos_y, w, h))
+                    colour = (230, 230, 230)
 
+                    # if (x == 0 and y == 0):
+                        # colour = (0, 0, 255)
+
+                    # if (directions[int(actions[x][y])] == "N"):
+                    #     colour = (255, 0, 0)
+                    # elif (directions[int(actions[x][y])] == "E"):
+                    #     colour = (0, 0, 255)
+                    # elif (directions[int(actions[x][y])] == "S"):
+                    #     colour = (255, 0, 255)
+                    # else:
+                    #     colour = (0, 128, 128)
+
+                    pygame.draw.rect(self.maze_layer, colour +
+                         (0,), (pos_x, pos_y, w, h))
+                    pygame.draw.rect(self.background, colour +
+                         (0,), (pos_x, pos_y, w, h))
+                    
                     self.maze_layer.blit(self.__font.render(str(round(value, 2)), 1, (0, 0, 0)), (pos_x+w/5, pos_y+h/4))
 
                 elif (x == self.maze_size[0]-1 and y == self.maze_size[1]-1):
@@ -200,7 +215,7 @@ class MazeView2D:
 
             return np.flipud(np.rot90(pygame.surfarray.array3d(pygame.display.get_surface())))
         
-    def __view_update_mdp(self, values, mode="human"):
+    def __view_update_mdp(self, values, directions, actions, mode="human"):
         if not self.__game_over:
             # update the robot's position
             self.__draw_entrance()
@@ -208,7 +223,7 @@ class MazeView2D:
             self.__draw_portals()
             self.__draw_robot()
 
-            self.show_values(values)
+            self.show_values(values, directions, actions)
 
             # update the screen
             self.screen.blit(self.background, (0, 0))

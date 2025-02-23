@@ -115,6 +115,12 @@ class MazeEnv(gym.Env):
         self.state = np.zeros(2)
         self.steps_beyond_done = None
         self.done = False
+
+        for x in range(self.maze_size[0]):
+            for y in range(self.maze_size[1]):
+                if not (x == 0 and y == 0) and not (x == self.maze_size[0]-1 and y == self.maze_size[1]-1):
+                    self.maze_view._MazeView2D__colour_explored_cell(([x, y]), (230, 230, 230), 255)
+
         return self.state
 
     def is_game_over(self):
@@ -126,11 +132,11 @@ class MazeEnv(gym.Env):
 
         return self.maze_view.update(mode)
     
-    def render_mdp(self, values, mode="human", close=False):
+    def render_mdp(self, values, directions, actions, mode="human", close=False):
         if close:
             self.maze_view.quit_game()
 
-        return self.maze_view.update_mdp(values,mode)
+        return self.maze_view.update_mdp(values, directions, actions, mode)
 
 
 class MazeEnvSample5x5(MazeEnv):
