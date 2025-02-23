@@ -19,10 +19,12 @@ class MazeEnv(gym.Env):
         self.viewer = None
         self.enable_render = enable_render
 
+        self.screen_dim = 840*(maze_size[0]/10)
+
         if maze_file:
             self.maze_view = MazeView2D(maze_name="CS&IS2 Gym - Maze (%s)" % maze_file,
                                         maze_file_path=maze_file,
-                                        screen_size=(840, 840),
+                                        screen_size=(self.screen_dim, self.screen_dim),
                                         enable_render=enable_render)
         elif maze_size:
             if mode == "plus":
@@ -35,7 +37,7 @@ class MazeEnv(gym.Env):
 
             self.maze_view = MazeView2D(maze_name="CS7IS2 Gym - Maze (%d x %d)" % maze_size,
                                         maze_size=maze_size, screen_size=(
-                                            840, 840),
+                                            self.screen_dim, self.screen_dim),
                                         has_loops=has_loops, num_portals=num_portals,
                                         enable_render=enable_render)
         else:
