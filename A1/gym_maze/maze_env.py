@@ -19,12 +19,14 @@ class MazeEnv(gym.Env):
         self.viewer = None
         self.enable_render = enable_render
 
-        self.screen_dim = 840*(maze_size[0]/10)
+        # self.screen_dim = 840*(maze_size[0]/10)
+        self.screen_dim = 950
 
         if maze_file:
             self.maze_view = MazeView2D(maze_name="CS&IS2 Gym - Maze (%s)" % maze_file,
                                         maze_file_path=maze_file,
-                                        screen_size=(self.screen_dim, self.screen_dim),
+                                        screen_size=(
+                                            self.screen_dim, self.screen_dim),
                                         enable_render=enable_render)
         elif maze_size:
             if mode == "plus":
@@ -95,7 +97,7 @@ class MazeEnv(gym.Env):
         info = {}
 
         return self.state, reward, done, info
-    
+
     def dash(self, destination):
         self.maze_view.dash_robot(destination)
 
@@ -121,7 +123,8 @@ class MazeEnv(gym.Env):
         for x in range(self.maze_size[0]):
             for y in range(self.maze_size[1]):
                 if not (x == 0 and y == 0) and not (x == self.maze_size[0]-1 and y == self.maze_size[1]-1):
-                    self.maze_view._MazeView2D__colour_explored_cell(([x, y]), (230, 230, 230), 255)
+                    self.maze_view._MazeView2D__colour_explored_cell(
+                        ([x, y]), (230, 230, 230), 255)
 
         return self.state
 
@@ -133,12 +136,12 @@ class MazeEnv(gym.Env):
             self.maze_view.quit_game()
 
         return self.maze_view.update(mode)
-    
-    def render_mdp(self, values, directions, actions, mode="human", close=False):
+
+    def render_mdp(self, values, mode="human", close=False):
         if close:
             self.maze_view.quit_game()
 
-        return self.maze_view.update_mdp(values, directions, actions, mode)
+        return self.maze_view.update_mdp(values, mode)
 
 
 class MazeEnvSample5x5(MazeEnv):

@@ -18,7 +18,9 @@ class MazeView2D:
         self.__game_over = False
         self.__enable_render = enable_render
 
-        self.__font = pygame.font.SysFont("Times New Roman", 16)
+        self.font_size = int((18)*(10/max(maze_size[0], maze_size[1])))
+
+        self.__font = pygame.font.SysFont("Times New Roman", self.font_size)
 
         # Load a maze
         if maze_file_path is None:
@@ -85,10 +87,10 @@ class MazeView2D:
             raise e
         else:
             return img_output
-        
-    def update_mdp(self, values, directions, actions, mode="human"):
+
+    def update_mdp(self, values, mode="human"):
         try:
-            img_output = self.__view_update_mdp(values, directions, actions, mode)
+            img_output = self.__view_update_mdp(values, mode)
             self.__controller_update()
         except Exception as e:
             self.__game_over = True
@@ -136,13 +138,13 @@ class MazeView2D:
                 tuple(self.robot)).teleport(tuple(self.robot)))
         self.__draw_robot(transparency=255)
 
-    def show_values(self, values, directions, actions):
+    def show_values(self, values):
         size = 10
 
         for x in range(self.maze_size[0]):
             for y in range(self.maze_size[1]):
-                # if not (x == 0 and y == 0) and not (x == self.maze_size[0]-1 and y == self.maze_size[1]-1):
-                if not (x == self.maze_size[0]-1 and y == self.maze_size[1]-1):
+                if not (x == 0 and y == 0) and not (x == self.maze_size[0]-1 and y == self.maze_size[1]-1):
+                    # if not (x == self.maze_size[0]-1 and y == self.maze_size[1]-1):
                     position = ([x, y])
                     value = values[x][y]
 
@@ -153,24 +155,13 @@ class MazeView2D:
 
                     colour = (230, 230, 230)
 
-                    # if (x == 0 and y == 0):
-                        # colour = (0, 0, 255)
-
-                    # if (directions[int(actions[x][y])] == "N"):
-                    #     colour = (255, 0, 0)
-                    # elif (directions[int(actions[x][y])] == "E"):
-                    #     colour = (0, 0, 255)
-                    # elif (directions[int(actions[x][y])] == "S"):
-                    #     colour = (255, 0, 255)
-                    # else:
-                    #     colour = (0, 128, 128)
-
                     pygame.draw.rect(self.maze_layer, colour +
-                         (0,), (pos_x, pos_y, w, h))
+                                     (0,), (pos_x, pos_y, w, h))
                     pygame.draw.rect(self.background, colour +
-                         (0,), (pos_x, pos_y, w, h))
-                    
-                    self.maze_layer.blit(self.__font.render(str(round(value, 2)), 1, (0, 0, 0)), (pos_x+w/5, pos_y+h/4))
+                                     (0,), (pos_x, pos_y, w, h))
+
+                    self.maze_layer.blit(self.__font.render(
+                        str(round(value, 2)), 1, (0, 0, 0)), (pos_x+w/5, pos_y+h/4))
 
                 elif (x == self.maze_size[0]-1 and y == self.maze_size[1]-1):
                     position = ([x, y])
@@ -181,7 +172,8 @@ class MazeView2D:
                     w = int(self.CELL_W + 0.5 - 1 - size)
                     h = int(self.CELL_H + 0.5 - 1 - size)
 
-                    self.maze_layer.blit(self.__font.render(str(round(value, 2)), 1, (0, 0, 0)), (pos_x+w/5, pos_y+h/4))
+                    self.maze_layer.blit(self.__font.render(
+                        str(round(value, 2)), 1, (0, 0, 0)), (pos_x+w/5, pos_y+h/4))
 
         pygame.display.update()
 
@@ -214,8 +206,8 @@ class MazeView2D:
                 pygame.display.flip()
 
             return np.flipud(np.rot90(pygame.surfarray.array3d(pygame.display.get_surface())))
-        
-    def __view_update_mdp(self, values, directions, actions, mode="human"):
+
+    def __view_update_mdp(self, values, mode="human"):
         if not self.__game_over:
             # update the robot's position
             self.__draw_entrance()
@@ -223,7 +215,7 @@ class MazeView2D:
             self.__draw_portals()
             self.__draw_robot()
 
-            self.show_values(values, directions, actions)
+            self.show_values(values)
 
             # update the screen
             self.screen.blit(self.background, (0, 0))
@@ -301,7 +293,6 @@ class MazeView2D:
         y = int(self.__robot[1] * self.CELL_H + self.CELL_H * 0.5 + 0.5)
         r = int(min(self.CELL_W, self.CELL_H)/5 + 0.5)
 
-        
         pygame.draw.circle(self.maze_layer, colour +
                            (transparency,), (x, y), r)
 
@@ -337,7 +328,7 @@ class MazeView2D:
         if not (isinstance(cell, (list, tuple, np.ndarray)) and len(cell) == 2):
             raise TypeError(
                 "cell must a be a tuple, list, or numpy array of size 2")
-        
+
         size = 12
 
         x = int(cell[0] * self.CELL_W + 0.5 + 1 + (size/2))
@@ -348,7 +339,7 @@ class MazeView2D:
                          (transparency,), (x, y, w, h))
         pygame.draw.rect(self.background, colour +
                          (transparency,), (x, y, w, h))
-        
+
     def __colour_explored_cell(self, cell, colour, transparency):
 
         if self.__enable_render is False:
@@ -357,7 +348,7 @@ class MazeView2D:
         if not (isinstance(cell, (list, tuple, np.ndarray)) and len(cell) == 2):
             raise TypeError(
                 "cell must a be a tuple, list, or numpy array of size 2")
-        
+
         size = 18
 
         x = int(cell[0] * self.CELL_W + 0.5 + 1 + (size/2))
