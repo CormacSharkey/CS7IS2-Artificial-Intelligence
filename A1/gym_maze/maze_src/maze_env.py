@@ -14,13 +14,13 @@ class MazeEnv(gym.Env):
 
     ACTION = ["N", "W", "E", "S"]
 
-    def __init__(self, maze_file=None, maze_size=None, mode=None, enable_render=True):
+    def __init__(self, maze_file=None, maze_size=None, mode=None, enable_render=True, screen_size=950):
 
         self.viewer = None
         self.enable_render = enable_render
 
         # self.screen_dim = 840*(maze_size[0]/10)
-        self.screen_dim = 950
+        self.screen_dim = screen_size
 
         if maze_file:
             self.maze_view = MazeView2D(maze_name="CS&IS2 Gym - Maze (%s)" % maze_file,

@@ -45,14 +45,14 @@ def benchmark(runs, size):
 
 
     for z in range(runs):
-        maze = gym.MazeEnv(maze_size=(size, size), mode="plus", enable_render=True)
+        maze = gym.MazeEnv(maze_size=(size, size), mode="plus")
         benchmark_search(maze, "DFS", search.depth_first_search, search.show_search_path, dfs_data, False)
         maze.reset()
         benchmark_search(maze, "BFS", search.breadth_first_search, search.show_search_path, bfs_data, False)
         maze.reset()
         benchmark_search(maze, "A*", search.a_star, search.show_search_path, a_star_data, False)
         maze.reset()
-        benchmark_mdp(maze, "MDP Value Iteration", mdp.mdp_value_iteration, mdp.show_mdp_path, mdp_vi_data, True)
+        benchmark_mdp(maze, "MDP Value Iteration", mdp.mdp_value_iteration, mdp.show_mdp_path, mdp_vi_data, False)
         maze.reset()
         benchmark_mdp(maze, "MDP Policy Iteration", mdp.mdp_policy_iteration, mdp.show_mdp_path, mdp_pi_data, False)
 

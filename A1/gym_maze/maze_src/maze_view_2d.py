@@ -131,7 +131,7 @@ class MazeView2D:
         self.__draw_robot(transparency=0)
 
         # move the robot
-        self.__robot = destination
+        self.__robot = np.copy(destination)
         # if it's in a portal afterward
         if self.maze.is_portal(self.robot):
             self.__robot = np.array(self.maze.get_portal(
