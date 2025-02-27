@@ -1,5 +1,5 @@
 from collections import deque
-import maze_env as gym
+import maze_src.maze_env as gym
 import numpy as np
 import sys
 import heapq
@@ -17,7 +17,7 @@ def check_neighbour(maze: gym.MazeEnv, visited: deque, search: deque, path):
     # For every direction available (N, E, S, W)
     for dir in maze.ACTION:
         # Calculate the neighbour given a direction
-        future_state = (maze.maze_view.robot +
+        future_state = np.copy(maze.maze_view.robot +
                         np.array(maze.maze_view.maze.COMPASS[dir]))
         # If the neighbour has not been visited and there is no wall between the agent's node and the neighbour
         if (not any((future_state == elem).all() for elem in visited)) and (not any((future_state == elem).all() for elem in search))and (maze.maze_view.maze.is_open(maze.maze_view.robot, dir)):
@@ -25,7 +25,7 @@ def check_neighbour(maze: gym.MazeEnv, visited: deque, search: deque, path):
             next_steps.append(future_state)
 
             # Link the future node to the current node for plotting the final path
-            path[tuple(future_state)] = maze.maze_view.robot
+            path[tuple(future_state)] = np.copy(maze.maze_view.robot)
 
     # After checking all possible neighbours, return the queue
     return next_steps
@@ -81,7 +81,7 @@ def move_agent(maze: gym.MazeEnv, node, colour, is_render=True):
 # Display the true path for a given search algorithm on the maze in dark red
 def show_search_path(maze: gym.MazeEnv, path, is_render=True):
     # Initialize the agent as being at the goal
-    agent = maze.maze_view.goal
+    agent = np.copy(maze.maze_view.goal)
 
     # Initialize the path length as 0
     path_length = 0
@@ -89,7 +89,7 @@ def show_search_path(maze: gym.MazeEnv, path, is_render=True):
     # While the agent has not reached the start
     while (agent != maze.maze_view.entrance).any():
         # Set the agent as being at the next node on the true path
-        agent = path[tuple(agent)]
+        agent = np.copy(path[tuple(agent)])
         # Colour the node to indicate the true path
         maze.maze_view._MazeView2D__colour_explored_cell(
             agent, (123, 3, 35), 180)
@@ -194,7 +194,7 @@ def breadth_first_search(maze: gym.MazeEnv, is_render=True):
         next_node = search_moves.popleft()
 
         # Move the agent to the next node and colour the path
-        state, reward, done = move_agent(maze, next_node, "gold")
+        state, reward, done = move_agent(maze, next_node, "gold", is_render)
 
         visited_nodes.append(maze.maze_view.robot)
 
@@ -284,18 +284,18 @@ def a_star(maze: gym.MazeEnv, is_render=True):
         # For every direction available (N, E, S, W)
         for dir in maze.ACTION:
             # Calculate the neighbour given a direction
-            future_node = (
+            future_node = np.copy(
                 next_node[2] + np.array(maze.maze_view.maze.COMPASS[dir]))
             # If the neighbour has not been visited and there is no wall between the agent's node and the neighbour
             if (not any((future_node == elem).all() for elem in visited_nodes)) and (maze.maze_view.maze.is_open(next_node[2], dir)):
                 # If the neighbour is the goal
                 if (future_node == maze.maze_view.goal).all():
                     # Link the future node to the current node for plotting the final path
-                    path[tuple(future_node)] = maze.maze_view.robot
+                    path[tuple(future_node)] = np.copy(maze.maze_view.robot)
                     # Move the agent to the neighbour and break the loop - maze solved
                     state, reward, done = move_agent(
                         maze, maze.maze_view.goal, "cyan", is_render)
-                    visited_nodes.append(maze.maze_view.robot)
+                    visited_nodes.append(np.copy(maze.maze_view.robot))
                     break
                 # Else - the neighbour is not the goal
                 else:
@@ -309,7 +309,7 @@ def a_star(maze: gym.MazeEnv, is_render=True):
                             tiebreaker), future_node, running_g))
 
                         # Link the future node to the current node for plotting the final path
-                        path[tuple(future_node)] = maze.maze_view.robot
+                        path[tuple(future_node)] = np.copy(maze.maze_view.robot)
 
         # If the current node is the goal, then the maze is solved
         # Set solved status as True

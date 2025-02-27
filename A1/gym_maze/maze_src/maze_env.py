@@ -4,7 +4,7 @@ import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
 # from gym_maze.envs.maze_view_2d import MazeView2D
-from maze_view_2d import MazeView2D
+from maze_src.maze_view_2d import MazeView2D
 
 
 class MazeEnv(gym.Env):

@@ -1,6 +1,6 @@
 import os
 # from gym_maze.envs.maze_view_2d import Maze
-from maze_view_2d import Maze
+from maze_src.maze_view_2d import Maze
 
 if __name__ == "__main__":
 
