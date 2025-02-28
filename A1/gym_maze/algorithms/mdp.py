@@ -72,7 +72,7 @@ def convert_dir(dir):
         return 1
     elif (dir == "S"):
         return 2
-    else:
+    elif (dir == "W"):
         return 3
     
 
@@ -135,7 +135,7 @@ def mdp_value_iteration(maze: gym.MazeEnv, is_render=True):
     values[maze.maze_size[0]-1, maze.maze_size[1]-1] = 100
 
     # Initialize an all-zero array for the primary direction for each state (index of above array represents direction)
-    agent_dirs = np.full((maze.maze_size[0], maze.maze_size[1]), 2)
+    agent_dirs = np.full((maze.maze_size[0], maze.maze_size[1]), 1)
 
     # Initialize an iteration counter for metrics
     iteration = 0
@@ -151,8 +151,8 @@ def mdp_value_iteration(maze: gym.MazeEnv, is_render=True):
 
         temp_values = np.copy(values)
         # For every node (state) in the maze
-        for x in reversed(range(maze.maze_size[0])):
-            for y in reversed(range(maze.maze_size[1])):
+        for x in (range(maze.maze_size[0])):
+            for y in (range(maze.maze_size[1])):
                 # If it's not the goal state
                 if not (x == maze.maze_size[0]-1 and y == maze.maze_size[1]-1):
 
@@ -161,19 +161,10 @@ def mdp_value_iteration(maze: gym.MazeEnv, is_render=True):
 
                     # For every possible direction (4)
                     for dir in range(4):
-                        # Calculate the forward, left and right state values (probability < 1 means deviation left and right)
-                        # forward = bellman_equation(
-                        #     maze, 0.8, gamma, directions[dir % 4], temp_values, ([x, y]))
-                        # right = bellman_equation(
-                        #     maze, 0.1, gamma, directions[(dir+1) % 4], temp_values, ([x, y]))
-                        # left = bellman_equation(
-                        #     maze, 0.1, gamma, directions[(dir-1) % 4], temp_values, ([x, y]))
-
                         forward = bellman_equation(
-                            maze, 1, gamma, directions[dir % 4], temp_values, ([x, y]))
+                            maze, 1, gamma, directions[dir], temp_values, ([x, y]))
 
                         # Sum the three directions
-                        # bellman_sum = forward + right + left
                         bellman_sum = forward
                         # Add it to the direction array
                         actions.append(bellman_sum)
@@ -201,7 +192,6 @@ def mdp_value_iteration(maze: gym.MazeEnv, is_render=True):
             break
 
     # Print a message that indicates how many iterations it took to converge
-    # print(f"Iterations for MDP Value Iteration: {iteration}")
     memory_footprint = sys.getsizeof(directions) + sys.getsizeof(values) + sys.getsizeof(agent_dirs) + sys.getsizeof(actions)
 
     # Return the solved status and policy array
@@ -232,7 +222,7 @@ def mdp_policy_iteration(maze: gym.MazeEnv, is_render=True):
     values[maze.maze_size[0]-1, maze.maze_size[1]-1] = 100
 
     # Initialize an all-zero array for the primary direction for each state (index of above array represents direction)
-    agent_dirs = np.full((maze.maze_size[0], maze.maze_size[1]), 2)
+    agent_dirs = np.full((maze.maze_size[0], maze.maze_size[1]), 1)
 
     # Initialize an iteration counter for metrics
     iteration = 0
@@ -251,24 +241,14 @@ def mdp_policy_iteration(maze: gym.MazeEnv, is_render=True):
 
             temp_values = np.copy(values)
             # For every node (state) in the maze
-            for x in reversed(range(maze.maze_size[0])):
-                for y in reversed(range(maze.maze_size[1])):
-                    # If it's now the goal state
+            for x in (range(maze.maze_size[0])):
+                for y in (range(maze.maze_size[1])):
+                    # If it's not the goal state
                     if not (x == maze.maze_size[0]-1 and y == maze.maze_size[1]-1):
-
-                        # Calculate the forward, left and right state values (probability < 1 means deviation left and right)
-                        # forward = bellman_equation(
-                        #     maze, 0.8, gamma, directions[int(agent_dirs[x][y]) % 4], temp_values, ([x, y]))
-                        # right = bellman_equation(maze, 0.1, gamma, directions[int(
-                        #     agent_dirs[x][y]+1) % 4], temp_values, ([x, y]))
-                        # left = bellman_equation(maze, 0.1, gamma, directions[int(
-                        #     agent_dirs[x][y]-1) % 4], temp_values, ([x, y]))
-
                         forward = bellman_equation(
-                            maze, 1, gamma, directions[int(agent_dirs[x][y]) % 4], temp_values, ([x, y]))
+                            maze, 1, gamma, directions[int(agent_dirs[x][y])], temp_values, ([x, y]))
 
                         # Sum the three directions
-                        # bellman_sum = forward + right + left
                         bellman_sum = forward
 
                         # Store the previous state value temporarily
@@ -288,12 +268,13 @@ def mdp_policy_iteration(maze: gym.MazeEnv, is_render=True):
             if delta < theta:
                 solved = True
                 break
+            # break
 
         # Assume the policies have converged
         converged_policy = True
         # For every node (state) in the maze
-        for x in reversed(range(maze.maze_size[0])):
-            for y in reversed(range(maze.maze_size[1])):
+        for x in (range(maze.maze_size[0])):
+            for y in (range(maze.maze_size[1])):
                 # If it's not the goal state
                 if not (x == maze.maze_size[0]-1 and y == maze.maze_size[1]-1):
 
@@ -302,19 +283,11 @@ def mdp_policy_iteration(maze: gym.MazeEnv, is_render=True):
 
                     # For every possible direction (4)
                     for dir in range(4):
-                        # Calculate the forward, left and right state values (probability < 1 means deviation left and right)
-                        # forward = bellman_equation(
-                        #     maze, 0.8, gamma, directions[dir % 4], values, ([x, y]))
-                        # right = bellman_equation(
-                        #     maze, 0.1, gamma, directions[(dir+1) % 4], values, ([x, y]))
-                        # left = bellman_equation(
-                        #     maze, 0.1, gamma, directions[(dir-1) % 4], values, ([x, y]))
 
                         forward = bellman_equation(
-                            maze, 1, gamma, directions[dir % 4], values, ([x, y]))
+                            maze, 1, gamma, directions[dir], values, ([x, y]))
 
                         # Sum the three directions
-                        # bellman_sum = forward + right + left
                         bellman_sum = forward
                         # Add it to the direction array
                         actions.append(bellman_sum)
@@ -329,7 +302,6 @@ def mdp_policy_iteration(maze: gym.MazeEnv, is_render=True):
 
                     # Assign the new state value and policy to its state
                     agent_dirs[x][y] = index
-                    # values[x][y] = new_value
 
         # Render the new state values
         if (is_render):
@@ -344,7 +316,6 @@ def mdp_policy_iteration(maze: gym.MazeEnv, is_render=True):
             solved = True
 
     # Print a message that indicates how many iterations it took to converge
-    # print(f"Iterations for MDP Policy Iteration: {iteration}")
     memory_footprint = sys.getsizeof(directions) + sys.getsizeof(values) + sys.getsizeof(temp_values) + sys.getsizeof(agent_dirs) + sys.getsizeof(actions)
 
     # Return the solved status and policy array

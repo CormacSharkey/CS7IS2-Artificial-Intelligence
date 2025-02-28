@@ -16,8 +16,6 @@ def benchmark_search(maze, name, algorithm, display, data, is_render):
     data["Average Path Tiles"] += path_length
     data["Average Memory Footprint"] += mem_footprint
 
-    # print(f"Algorithm: {name} \nSolve Time Avg: {sum(solve_time)/len(solve_time): .2f} \nExplored Tiles Avg: {sum(explored_len)/len(explored_len): .2f} \nPath Tiles Avg: {sum(path_len)/len(path_len): .2f} \nMemory Footprint Avg: {sum(memory_footprint)/len(memory_footprint): .2f}\n")
-
 
 def benchmark_mdp(maze, name, algorithm, display, data, is_render):
     T_start = time.monotonic()
@@ -31,8 +29,6 @@ def benchmark_mdp(maze, name, algorithm, display, data, is_render):
     data["Average Path Tiles"] += path_length
     data["Average Memory Footprint"] += mem_footprint
 
-    # print(f"Algorithm: {name} \nSolve Time Avg: {sum(solve_time)/len(solve_time): .2f} \nIterations Avg: {sum(iteration_len)/len(iteration_len): .2f} \nPath Tiles Avg: {sum(path_len)/len(path_len): .2f}\nMemory Footprint Avg: {sum(memory_footprint)/len(memory_footprint): .2f}\n")
-
 
 def benchmark(runs, size):
     field_names = ['Average Solve Time', 'Average Explored Tiles/Iterations', 'Average Path Tiles', 'Average Memory Footprint']
@@ -45,7 +41,7 @@ def benchmark(runs, size):
 
 
     for z in range(runs):
-        maze = gym.MazeEnv(maze_size=(size, size), mode="plus")
+        maze = gym.MazeEnv(maze_size=(size, size), mode="plus", enable_render=False)
         benchmark_search(maze, "DFS", search.depth_first_search, search.show_search_path, dfs_data, False)
         maze.reset()
         benchmark_search(maze, "BFS", search.breadth_first_search, search.show_search_path, bfs_data, False)
@@ -66,7 +62,7 @@ def benchmark(runs, size):
         data.append(dfs_data[key] / runs)
     row.append(data)
 
-    print(f"Algorithm: DFS \nSolve Time Avg: {data[0]: .2f} \nExplored Tiles Avg: {data[1]: .2f} \nPath Tiles Avg: {data[2]: .2f} \nMemory Footprint Avg: {data[3]: .2f}\n")
+    print(f"Algorithm: DFS \nSolve Time Avg: {data[0]: .3f} \nExplored Tiles Avg: {data[1]: .3f} \nPath Tiles Avg: {data[2]: .3f} \nMemory Footprint Avg: {data[3]: .3f}\n")
 
     data = []
     for key in bfs_data:
@@ -74,7 +70,7 @@ def benchmark(runs, size):
         data.append(bfs_data[key] / runs)
     row.append(data)
 
-    print(f"Algorithm: BFS \nSolve Time Avg: {data[0]: .2f} \nExplored Tiles Avg: {data[1]: .2f} \nPath Tiles Avg: {data[2]: .2f} \nMemory Footprint Avg: {data[3]: .2f}\n")
+    print(f"Algorithm: BFS \nSolve Time Avg: {data[0]: .3f} \nExplored Tiles Avg: {data[1]: .3f} \nPath Tiles Avg: {data[2]: .3f} \nMemory Footprint Avg: {data[3]: .3f}\n")
 
     data = []
     for key in a_star_data:
@@ -82,7 +78,7 @@ def benchmark(runs, size):
         data.append(a_star_data[key] / runs)
     row.append(data)
 
-    print(f"Algorithm: A* \nSolve Time Avg: {data[0]: .2f} \nExplored Tiles Avg: {data[1]: .2f} \nPath Tiles Avg: {data[2]: .2f} \nMemory Footprint Avg: {data[3]: .2f}\n")
+    print(f"Algorithm: A* \nSolve Time Avg: {data[0]: .3f} \nExplored Tiles Avg: {data[1]: .3f} \nPath Tiles Avg: {data[2]: .3f} \nMemory Footprint Avg: {data[3]: .3f}\n")
 
     data = []
     for key in mdp_vi_data:
@@ -90,7 +86,7 @@ def benchmark(runs, size):
         data.append(mdp_vi_data[key] / runs)
     row.append(data)
 
-    print(f"Algorithm: MDP Value Iteration \nSolve Time Avg: {data[0]: .2f} \nIterations Avg: {data[1]: .2f} \nPath Tiles Avg: {data[2]: .2f} \nMemory Footprint Avg: {data[3]: .2f}\n")
+    print(f"Algorithm: MDP Value Iteration \nSolve Time Avg: {data[0]: .3f} \nIterations Avg: {data[1]: .3f} \nPath Tiles Avg: {data[2]: .3f} \nMemory Footprint Avg: {data[3]: .3f}\n")
     
     data = []
     for key in mdp_pi_data:
@@ -98,7 +94,7 @@ def benchmark(runs, size):
         data.append(mdp_pi_data[key] / runs)
     row.append(data)
 
-    print(f"Algorithm: MDP Policy Iteration \nSolve Time Avg: {data[0]: .2f} \nIterations Avg: {data[1]: .2f} \nPath Tiles Avg: {data[2]: .2f} \nMemory Footprint Avg: {data[3]: .2f}\n")
+    print(f"Algorithm: MDP Policy Iteration \nSolve Time Avg: {data[0]: .3f} \nIterations Avg: {data[1]: .3f} \nPath Tiles Avg: {data[2]: .3f} \nMemory Footprint Avg: {data[3]: .3f}\n")
     
 
     # writing to csv file
@@ -124,4 +120,18 @@ def benchmark(runs, size):
 # The effects of varying gamma 
 
 if __name__ == "__main__":
+    print("Benchmark!")
+    # benchmark(10, 5)
+    # benchmark(10, 10)
+    # benchmark(10, 15)
+    # benchmark(10, 20)
+    # benchmark(10, 25)
+    # benchmark(10, 30)
+
+    # benchmark(10, 35)
+    # benchmark(10, 40)
+    # benchmark(10, 45)
     benchmark(10, 50)
+
+    
+
