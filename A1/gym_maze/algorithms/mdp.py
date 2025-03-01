@@ -1,25 +1,18 @@
 import maze_src.maze_env as gym
 import numpy as np
 import sys
-import time
-
-#! MDP Policy Iteration
-# Policy = direction
-# Start with a random policy for all states
-# Calculate policy score for each state (Policy Evaluation)
-# Perform value iteration until convergence (Policy Improvement)
-# Repeat until policy converges
 
 
 #! Bellman Equation
 # Calculate the value of a given node for a given primary direction
-# Apply the Bellman Equation to determine one of a possible four (three in this code) values for a node
+# Apply the Bellman Equation to determine a state value for a node in a given direction
 # Takes the probability of going in a direction, a discount (gamma), the direction's node's value, and the reward for the direction
 def bellman_equation(maze: gym.MazeEnv, probability, gamma, dir, values, curr_state):
     # Get the neighbour state for a given direction
-    future_state = np.copy(curr_state + np.array(maze.maze_view.maze.COMPASS[dir]))
+    future_state = np.copy(
+        curr_state + np.array(maze.maze_view.maze.COMPASS[dir]))
 
-    # If the neighbour is not blocked by a wall
+    # If the neighbour is not blocked by a wall or out of bounds
     if (maze.maze_view.maze.is_open(curr_state, dir)):
         # Set the next state value as the neighbour's state value
         next_state_value = values[future_state[0]][future_state[1]]
@@ -31,8 +24,8 @@ def bellman_equation(maze: gym.MazeEnv, probability, gamma, dir, values, curr_st
     if (future_state == maze.maze_view.goal).all():
         # The reward is 1
         reward = 1
+    # Else, the reward is 0 (for every neighbour state not the goal)
     else:
-        # Else, the reward is 0 (for every neighbour state not the goal)
         reward = 0
 
     # The next state value - Bellman Equation for one action probability
@@ -47,7 +40,8 @@ def bellman_equation(maze: gym.MazeEnv, probability, gamma, dir, values, curr_st
 def get_best_action(values):
     # Initialize the max value as the first value
     maximum = values[0]
-    # Initialize the max value index as the first value index (this also indicates the action based on an assumed action array)
+    # Initialize the max value index as the first value index
+    # This also indicates the action based on an assumed action array
     index = 0
 
     # For the remaining values
@@ -74,10 +68,11 @@ def convert_dir(dir):
         return 2
     elif (dir == "W"):
         return 3
-    
+
 
 #! Show MDP Path
 # Display the true path for a given MDP algorithm on the maze in dark red
+# Propagates from start to end
 def show_mdp_path(maze: gym.MazeEnv, path, is_render=True):
     # Initialize the agent as being at the start
     agent = np.copy(maze.maze_view.entrance)
@@ -119,10 +114,7 @@ def show_mdp_path(maze: gym.MazeEnv, path, is_render=True):
 # Use the Bellman Equation to calculate the surrounding nodes' state values
 # Repeat iterations until state values have propagated to all states and have converged
 # Upon convergence, path has been calculated
-def mdp_value_iteration(maze: gym.MazeEnv, is_render=True):
-    # Discount value (gamma)
-    gamma = 0.9
-
+def mdp_value_iteration(maze: gym.MazeEnv, gamma=0.9, is_render=True):
     # Assumed array of actions (assumption used by methods above)
     directions = ["N", "E", "S", "W"]
 
@@ -131,7 +123,7 @@ def mdp_value_iteration(maze: gym.MazeEnv, is_render=True):
 
     # Initialize an all-zero array for the state values - make it the size of the maze
     values = np.zeros((maze.maze_size[0], maze.maze_size[1]))
-    # Set the goal
+    # Set the goal state value
     values[maze.maze_size[0]-1, maze.maze_size[1]-1] = 100
 
     # Initialize an all-zero array for the primary direction for each state (index of above array represents direction)
@@ -140,15 +132,14 @@ def mdp_value_iteration(maze: gym.MazeEnv, is_render=True):
     # Initialize an iteration counter for metrics
     iteration = 0
     # Initialize a value of theta - a threshold for determining convergence
-    theta = 0.001
+    theta = 0.0000001
 
     # While True - broken by convergence
     while True:
         # Set the current max delta between new and old state values as 0
         delta = 0
 
-        # time.sleep(3)
-
+        # Copy the current state values to a temporary array for calculations
         temp_values = np.copy(values)
         # For every node (state) in the maze
         for x in (range(maze.maze_size[0])):
@@ -161,6 +152,7 @@ def mdp_value_iteration(maze: gym.MazeEnv, is_render=True):
 
                     # For every possible direction (4)
                     for dir in range(4):
+                        # Calculate the deterministic bellman sum for the given direction
                         forward = bellman_equation(
                             maze, 1, gamma, directions[dir], temp_values, ([x, y]))
 
@@ -191,25 +183,23 @@ def mdp_value_iteration(maze: gym.MazeEnv, is_render=True):
             solved = True
             break
 
-    # Print a message that indicates how many iterations it took to converge
-    memory_footprint = sys.getsizeof(directions) + sys.getsizeof(values) + sys.getsizeof(agent_dirs) + sys.getsizeof(actions)
+    # Calculate the memory footprint of the algorithm
+    memory_footprint = sys.getsizeof(
+        directions) + sys.getsizeof(values) + sys.getsizeof(agent_dirs) + sys.getsizeof(actions)
 
-    # Return the solved status and policy array
+    # Return the solved status, state policies, iterations and memory footprint
     # In theory, if there is a solution to the given maze, will always return true
     return solved, agent_dirs, iteration, memory_footprint
 
 #! MDP Policy Iteration
 # Policy = direction
 # Start with a random policy for all states
-# Calculate policy score for each state (Policy Evaluation)
-# Perform value iteration until convergence (Policy Improvement)
+# Calculate policy score for each state until convergence (Policy Evaluation)
+# Update all states to best policy (Policy Improvement)
 # Repeat until policy converges
 
 
-def mdp_policy_iteration(maze: gym.MazeEnv, is_render=True):
-    # Discount value (gamma)
-    gamma = 0.9
-
+def mdp_policy_iteration(maze: gym.MazeEnv, gamma=0.9, is_render=True):
     # Assumed array of actions (assumption used by methods above)
     directions = ["N", "E", "S", "W"]
 
@@ -218,16 +208,16 @@ def mdp_policy_iteration(maze: gym.MazeEnv, is_render=True):
 
     # Initialize an all-zero array for the state values - make it the size of the maze
     values = np.zeros((maze.maze_size[0], maze.maze_size[1]))
-    # Set the goal
+    # Set the goal state value
     values[maze.maze_size[0]-1, maze.maze_size[1]-1] = 100
 
-    # Initialize an all-zero array for the primary direction for each state (index of above array represents direction)
+    # Initialize an all-one array for the primary direction for each state (index of above array represents direction)
     agent_dirs = np.full((maze.maze_size[0], maze.maze_size[1]), 1)
 
     # Initialize an iteration counter for metrics
     iteration = 0
     # Initialize a value of theta - a threshold for determining convergence
-    theta = 0.001
+    theta = 0.0000001
 
     # Flag to control termination at convergence
     not_converged = True
@@ -239,25 +229,22 @@ def mdp_policy_iteration(maze: gym.MazeEnv, is_render=True):
             # Set the current max delta between new and old state values as 0
             delta = 0
 
+            # Copy the current state values to a temporary array for calculations
             temp_values = np.copy(values)
             # For every node (state) in the maze
             for x in (range(maze.maze_size[0])):
                 for y in (range(maze.maze_size[1])):
                     # If it's not the goal state
                     if not (x == maze.maze_size[0]-1 and y == maze.maze_size[1]-1):
-                        forward = bellman_equation(
+                        # Calculate the deterministic bellman sum for the given direction
+                        bellman_sum = bellman_equation(
                             maze, 1, gamma, directions[int(agent_dirs[x][y])], temp_values, ([x, y]))
 
-                        # Sum the three directions
-                        bellman_sum = forward
-
-                        # Store the previous state value temporarily
-                        value = temp_values[x][y]
                         # Update the previous state value with the new state value
                         values[x][y] = bellman_sum
 
                         # Calculate the delta to measure convergence
-                        delta = max(delta, abs(value-values[x][y]))
+                        delta = max(delta, abs(temp_values[x][y]-values[x][y]))
 
             # Render the new state values
             if (is_render):
@@ -268,7 +255,6 @@ def mdp_policy_iteration(maze: gym.MazeEnv, is_render=True):
             if delta < theta:
                 solved = True
                 break
-            # break
 
         # Assume the policies have converged
         converged_policy = True
@@ -278,21 +264,19 @@ def mdp_policy_iteration(maze: gym.MazeEnv, is_render=True):
                 # If it's not the goal state
                 if not (x == maze.maze_size[0]-1 and y == maze.maze_size[1]-1):
 
-                    # Initialize an array for state values
+                    # Initialize an array for policies
                     actions = []
 
                     # For every possible direction (4)
                     for dir in range(4):
-
-                        forward = bellman_equation(
+                        # Calculate the deterministic bellman sum for the given direction
+                        bellman_sum = bellman_equation(
                             maze, 1, gamma, directions[dir], values, ([x, y]))
 
-                        # Sum the three directions
-                        bellman_sum = forward
-                        # Add it to the direction array
+                        # Add it to the policy array
                         actions.append(bellman_sum)
 
-                    # Use arrays of actions to plot final path
+                    # Use arrays of policies to find the best policy for the given state
                     index, new_value = get_best_action(actions)
 
                     # If the previous policy has changed
@@ -300,7 +284,7 @@ def mdp_policy_iteration(maze: gym.MazeEnv, is_render=True):
                         # Record that the policies have not converged
                         converged_policy = False
 
-                    # Assign the new state value and policy to its state
+                    # Assign the new policy to its state
                     agent_dirs[x][y] = index
 
         # Render the new state values
@@ -315,9 +299,10 @@ def mdp_policy_iteration(maze: gym.MazeEnv, is_render=True):
             not_converged = False
             solved = True
 
-    # Print a message that indicates how many iterations it took to converge
-    memory_footprint = sys.getsizeof(directions) + sys.getsizeof(values) + sys.getsizeof(temp_values) + sys.getsizeof(agent_dirs) + sys.getsizeof(actions)
+    # Calculate the memory footprint of the algorithm
+    memory_footprint = sys.getsizeof(directions) + sys.getsizeof(values) + sys.getsizeof(
+        temp_values) + sys.getsizeof(agent_dirs) + sys.getsizeof(actions)
 
-    # Return the solved status and policy array
+    # Return the solved status, state policies, iterations and memory footprint
     # In theory, if there is a solution to the given maze, will always return true
     return solved, agent_dirs, iteration, memory_footprint
