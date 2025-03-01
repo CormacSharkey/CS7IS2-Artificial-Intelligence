@@ -153,11 +153,9 @@ def mdp_value_iteration(maze: gym.MazeEnv, gamma=0.9, is_render=True):
                     # For every possible direction (4)
                     for dir in range(4):
                         # Calculate the deterministic bellman sum for the given direction
-                        forward = bellman_equation(
+                        bellman_sum = bellman_equation(
                             maze, 1, gamma, directions[dir], temp_values, ([x, y]))
 
-                        # Sum the three directions
-                        bellman_sum = forward
                         # Add it to the direction array
                         actions.append(bellman_sum)
 

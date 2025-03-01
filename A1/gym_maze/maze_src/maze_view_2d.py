@@ -18,7 +18,7 @@ class MazeView2D:
         self.__game_over = False
         self.__enable_render = enable_render
 
-        self.font_size = int((18)*(10/max(maze_size[0], maze_size[1])))
+        self.font_size = int((22)*(10/max(maze_size[0], maze_size[1])))
 
         self.__font = pygame.font.SysFont("Times New Roman", self.font_size)
 
