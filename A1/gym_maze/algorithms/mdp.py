@@ -57,19 +57,6 @@ def get_best_action(values):
     return index, maximum
 
 
-#! Convert Direction
-# Given a direction as a letter code, return the index value it has in an assumed action array
-def convert_dir(dir):
-    if (dir == "N"):
-        return 0
-    elif (dir == "E"):
-        return 1
-    elif (dir == "S"):
-        return 2
-    elif (dir == "W"):
-        return 3
-
-
 #! Show MDP Path
 # Display the true path for a given MDP algorithm on the maze in dark red
 # Propagates from start to end
@@ -126,7 +113,8 @@ def mdp_value_iteration(maze: gym.MazeEnv, gamma=0.9, is_render=True):
     # Set the goal state value
     values[maze.maze_size[0]-1, maze.maze_size[1]-1] = 100
 
-    # Initialize an all-zero array for the primary direction for each state (index of above array represents direction)
+    # Initialize an all-zero array for the primary direction for each state
+    # (index of above array represents direction)
     agent_dirs = np.full((maze.maze_size[0], maze.maze_size[1]), 1)
 
     # Initialize an iteration counter for metrics
@@ -141,6 +129,7 @@ def mdp_value_iteration(maze: gym.MazeEnv, gamma=0.9, is_render=True):
 
         # Copy the current state values to a temporary array for calculations
         temp_values = np.copy(values)
+
         # For every node (state) in the maze
         for x in (range(maze.maze_size[0])):
             for y in (range(maze.maze_size[1])):
@@ -170,20 +159,24 @@ def mdp_value_iteration(maze: gym.MazeEnv, gamma=0.9, is_render=True):
 
         # Render the new state values
         if (is_render):
-            maze.render_mdp(values=values)
+            maze.render_mdp(values=values, flag=False)
 
         # Update the iterations by 1
         iteration += 1
 
-        # If the max delta for the last iteration is less that theta (threshold), convergence has been reached
+        # If the max delta for the last iteration is less that theta (threshold)
+        # convergence has been reached
         # Break the loop
         if delta < theta:
             solved = True
             break
 
     # Calculate the memory footprint of the algorithm
-    memory_footprint = sys.getsizeof(
-        directions) + sys.getsizeof(values) + sys.getsizeof(agent_dirs) + sys.getsizeof(actions)
+    memory_footprint = sys.getsizeof(directions)
+    + sys.getsizeof(values)
+    + sys.getsizeof(temp_values)
+    + sys.getsizeof(agent_dirs)
+    + sys.getsizeof(actions)
 
     # Return the solved status, state policies, iterations and memory footprint
     # In theory, if there is a solution to the given maze, will always return true
@@ -195,8 +188,6 @@ def mdp_value_iteration(maze: gym.MazeEnv, gamma=0.9, is_render=True):
 # Calculate policy score for each state until convergence (Policy Evaluation)
 # Update all states to best policy (Policy Improvement)
 # Repeat until policy converges
-
-
 def mdp_policy_iteration(maze: gym.MazeEnv, gamma=0.9, is_render=True):
     # Assumed array of actions (assumption used by methods above)
     directions = ["N", "E", "S", "W"]
@@ -209,7 +200,8 @@ def mdp_policy_iteration(maze: gym.MazeEnv, gamma=0.9, is_render=True):
     # Set the goal state value
     values[maze.maze_size[0]-1, maze.maze_size[1]-1] = 100
 
-    # Initialize an all-one array for the primary direction for each state (index of above array represents direction)
+    # Initialize an all-one array for the primary direction for each state
+    # (index of above array represents direction)
     agent_dirs = np.full((maze.maze_size[0], maze.maze_size[1]), 1)
 
     # Initialize an iteration counter for metrics
@@ -229,6 +221,7 @@ def mdp_policy_iteration(maze: gym.MazeEnv, gamma=0.9, is_render=True):
 
             # Copy the current state values to a temporary array for calculations
             temp_values = np.copy(values)
+
             # For every node (state) in the maze
             for x in (range(maze.maze_size[0])):
                 for y in (range(maze.maze_size[1])):
@@ -236,7 +229,10 @@ def mdp_policy_iteration(maze: gym.MazeEnv, gamma=0.9, is_render=True):
                     if not (x == maze.maze_size[0]-1 and y == maze.maze_size[1]-1):
                         # Calculate the deterministic bellman sum for the given direction
                         bellman_sum = bellman_equation(
-                            maze, 1, gamma, directions[int(agent_dirs[x][y])], temp_values, ([x, y]))
+                            maze, 1, gamma,
+                            directions[int(agent_dirs[x][y])],
+                            temp_values, ([x, y])
+                        )
 
                         # Update the previous state value with the new state value
                         values[x][y] = bellman_sum
@@ -246,9 +242,10 @@ def mdp_policy_iteration(maze: gym.MazeEnv, gamma=0.9, is_render=True):
 
             # Render the new state values
             if (is_render):
-                maze.render_mdp(values=values)
+                maze.render_mdp(values=agent_dirs, flag=True)
 
-            # If the max delta for the last iteration is less that theta (threshold), convergence has been reached
+            # If the max delta for the last iteration is less that theta (threshold)
+            # convergence has been reached
             # Break the loop
             if delta < theta:
                 solved = True
@@ -287,7 +284,7 @@ def mdp_policy_iteration(maze: gym.MazeEnv, gamma=0.9, is_render=True):
 
         # Render the new state values
         if (is_render):
-            maze.render_mdp(values=values)
+            maze.render_mdp(values=agent_dirs, flag=True)
 
         # Update the iterations by 1
         iteration += 1
@@ -298,8 +295,11 @@ def mdp_policy_iteration(maze: gym.MazeEnv, gamma=0.9, is_render=True):
             solved = True
 
     # Calculate the memory footprint of the algorithm
-    memory_footprint = sys.getsizeof(directions) + sys.getsizeof(values) + sys.getsizeof(
-        temp_values) + sys.getsizeof(agent_dirs) + sys.getsizeof(actions)
+    memory_footprint = sys.getsizeof(directions)
+    + sys.getsizeof(values)
+    + sys.getsizeof(temp_values)
+    + sys.getsizeof(agent_dirs)
+    + sys.getsizeof(actions)
 
     # Return the solved status, state policies, iterations and memory footprint
     # In theory, if there is a solution to the given maze, will always return true

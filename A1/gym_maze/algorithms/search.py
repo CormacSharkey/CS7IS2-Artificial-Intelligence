@@ -17,10 +17,20 @@ def check_neighbour(maze: gym.MazeEnv, visited: deque, search: deque, path):
     # For every direction available (N, E, S, W)
     for dir in maze.ACTION:
         # Calculate the neighbour given a direction
-        future_state = np.copy(maze.maze_view.robot +
-                               np.array(maze.maze_view.maze.COMPASS[dir]))
-        # If the neighbour has not been visited, is not queued up to be searched and there is no wall between the agent's node and the neighbour
-        if (not any((future_state == elem).all() for elem in visited)) and (not any((future_state == elem).all() for elem in search)) and (maze.maze_view.maze.is_open(maze.maze_view.robot, dir)):
+        future_state = np.copy(
+            maze.maze_view.robot + np.array(maze.maze_view.maze.COMPASS[dir])
+        )
+
+        # Check if the neighbour has been visited
+        not_visited = (not any((future_state == elem).all()
+                       for elem in visited))
+        # Check if the neighbour is queued up to be searched
+        not_searching = (not any((future_state == elem).all()
+                         for elem in search))
+        # Check if there is a wall between the agent's node and the neighbour
+        is_open = (maze.maze_view.maze.is_open(maze.maze_view.robot, dir))
+        # If all conditions are met
+        if not_visited and not_searching and is_open:
             # Add it to the next steps queue
             next_steps.append(future_state)
 
@@ -37,7 +47,8 @@ def check_neighbour(maze: gym.MazeEnv, visited: deque, search: deque, path):
 # G = cost of the current path up to this point from the start
 # H = heuristic distance to the goal
 def calculate_f(maze: gym.MazeEnv, running_g, future_node):
-    # The value of h is calculated as the Manhattan Distance from the neighbour to the goal (distance x + distance y)
+    # The value of h is calculated as the Manhattan Distance from neighbour to the goal
+    # (distance x + distance y)
     # Manhattan Distance
     new_h = np.sum(np.abs(maze.maze_view.goal - future_node))
 
@@ -55,7 +66,8 @@ def calculate_f(maze: gym.MazeEnv, running_g, future_node):
 def move_agent(maze: gym.MazeEnv, node, colour, is_render=True):
     # Move the agent to the given node
     state, reward, done, info = maze.dash(node)
-    # If-Else statement - colour the agent's exploration path differently depending on which search algorithm is active
+    # If-Else statement - colour the agent's exploration path
+    # Different colour depending on which search algorithm is active
     if (colour == "purple"):
         maze.maze_view._MazeView2D__colour_explored_cell(
             state, (180, 0, 180), 180)
@@ -65,11 +77,13 @@ def move_agent(maze: gym.MazeEnv, node, colour, is_render=True):
     elif (colour == "cyan"):
         maze.maze_view._MazeView2D__colour_explored_cell(
             state, (0, 139, 139), 180)
-    # Render the maze - update the display with the agent's movement and path colouring for the viewer
+    # Render the maze - update the display with the agent's movement
+    # Also colour the path for the viewer
     if (is_render):
         maze.render()
 
-    # Return the agent's current node, the current reward, and whether the agent has reached the goal or not
+    # Return the agent's current node, the current reward
+    # Also whether the agent has reached the goal or not
     return state, reward, done
 
 
@@ -151,7 +165,7 @@ def depth_first_search(maze: gym.MazeEnv, is_render=True):
         if (done):
             solved = True
             break
-    
+
     # Calculate the memory footprint of the search
     memory_footprint = sys.getsizeof(
         visited_nodes) + sys.getsizeof(search_moves) + sys.getsizeof(path)
@@ -211,7 +225,7 @@ def breadth_first_search(maze: gym.MazeEnv, is_render=True):
         if (done):
             solved = True
             break
-    
+
     # Calculate the memory footprint of the search
     memory_footprint = sys.getsizeof(
         visited_nodes) + sys.getsizeof(search_moves) + sys.getsizeof(path)
@@ -261,7 +275,7 @@ def a_star(maze: gym.MazeEnv, is_render=True):
     heapq.heappush(search_nodes, (0,  next(tiebreaker),
                    maze.maze_view.entrance, running_g))
 
-    # While there are nodes in the search priority queue - there are places to visited
+    # While there are nodes in the search priority queue - there are places to visit
     while (len(search_nodes) > 0):
         # Pop the next node from the search priority queue - priority queue pop
         next_node = heapq.heappop(search_nodes)
@@ -286,28 +300,42 @@ def a_star(maze: gym.MazeEnv, is_render=True):
         for dir in maze.ACTION:
             # Calculate the neighbour given a direction
             future_node = np.copy(
-                next_node[2] + np.array(maze.maze_view.maze.COMPASS[dir]))
-            # If the neighbour has not been visited and there is no wall between the agent's node and the neighbour
-            if (not any((future_node == elem).all() for elem in visited_nodes)) and (maze.maze_view.maze.is_open(next_node[2], dir)):
+                next_node[2] + np.array(maze.maze_view.maze.COMPASS[dir])
+            )
+
+            # Check if the neighbour has been visited
+            not_visited = (not any((future_node == elem).all()
+                           for elem in visited_nodes))
+            # Check if there is a wall between the agent's node and the neighbour
+            is_open = (maze.maze_view.maze.is_open(next_node[2], dir))
+
+            # If the neighbour is not visited and is open
+            if not_visited and is_open:
                 # If the neighbour is the goal
                 if (future_node == maze.maze_view.goal).all():
                     # Link the future node to the current node for plotting the final path
                     path[tuple(future_node)] = np.copy(maze.maze_view.robot)
+
                     # Move the agent to the neighbour and break the loop - maze solved
                     state, reward, done = move_agent(
-                        maze, maze.maze_view.goal, "cyan", is_render)
+                        maze, maze.maze_view.goal, "cyan", is_render
+                    )
+
+                    # Add the current node to the visited queue
                     visited_nodes.append(np.copy(maze.maze_view.robot))
                     break
                 # Else - the neighbour is not the goal
                 else:
                     # Calculate the new f score using the current g and the current node
                     new_f = calculate_f(maze, running_g, future_node)
+
                     # If the neighbour is not already in the search priority queue
                     if (not any((future_node == elem[2]).all() for elem in search_nodes)):
                         # Push the neighbour onto the priority queue
                         # Include their f score, the tiebreaker, the node and the g score
                         heapq.heappush(search_nodes, (new_f,  next(
-                            tiebreaker), future_node, running_g))
+                            tiebreaker), future_node, running_g)
+                        )
 
                         # Link the future node to the current node for plotting the final path
                         path[tuple(future_node)] = np.copy(
@@ -319,6 +347,7 @@ def a_star(maze: gym.MazeEnv, is_render=True):
         if (done):
             solved = True
             break
+        
     # Calculate the memory footprint of the search
     memory_footprint = sys.getsizeof(
         visited_nodes) + sys.getsizeof(search_nodes) + sys.getsizeof(path)

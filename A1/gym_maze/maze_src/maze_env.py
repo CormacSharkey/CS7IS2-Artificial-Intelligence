@@ -137,11 +137,11 @@ class MazeEnv(gym.Env):
 
         return self.maze_view.update(mode)
 
-    def render_mdp(self, values, mode="human", close=False):
+    def render_mdp(self, values, mode="human", close=False, flag=False):
         if close:
             self.maze_view.quit_game()
 
-        return self.maze_view.update_mdp(values, mode)
+        return self.maze_view.update_mdp(values, mode, flag)
 
 
 class MazeEnvSample5x5(MazeEnv):
