@@ -2,7 +2,6 @@ import argparse
 import maze_src.maze_env as gym
 import algorithms.search as search
 import algorithms.mdp as mdp
-import benchmark as bench
 import time
 
 
