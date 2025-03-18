@@ -3,51 +3,89 @@ import random
 from gym_tictactoe.env import TicTacToeEnv, agent_by_mark, check_game_status,\
     after_action_state, tomark, next_mark
 
+# Random Agent - Picks a random action that is valid
+class RandomAgent(object):
+    def __init__(self, mark):
+        self.mark = mark
 
-class BaseAgent(object):
+    def act(self, state, ava_actions):
+        # Return a random action
+        return random.choice(ava_actions)
+
+# Clever Agent - Picks single-move winning actions and single-move blocking actions, else random actions
+class CleverAgent(object):
     def __init__(self, mark):
         self.mark = mark
 
     def act(self, state, ava_actions):
         # For every action in the provided available actions
         for action in ava_actions:
-            # Get the proposed state of the board after taking the given action
-            nstate = after_action_state(state, action)
+            # Get the proposed state of the board after the ally takes the given action
+            nstate_ally = after_action_state(state, action)
             # Get the game status (victory X, victory O, no-win, still playing) based on the proposed state
-            gstatus = check_game_status(nstate[0])
+            gstatus_ally = check_game_status(nstate_ally[0])
 
             # If the game status is a victory
-            if gstatus > 0:
-                # If the current agent's mark is the victory mark
-                if tomark(gstatus) == self.mark:
+            if gstatus_ally > 0:
+                # If the ally's mark is the victory mark
+                if tomark(gstatus_ally) == self.mark:
                     # Return the current action (ensures victory for the agent)
                     return action
-        # If none of the available actions ensure victory, return a random action
+                
+        for action in ava_actions:   
+            # Get the proposed state of the board after the enemy takes the given action
+            nstate_enemy = after_action_state((state[0], next_mark(state[1])), action)
+            # Get the game status (victory X, victory O, no-win, still playing) based on the proposed state
+            gstatus_enemy = check_game_status(nstate_enemy[0])
+
+            # If the game status is a victory
+            if gstatus_enemy > 0:
+                # If the enemy's mark is the victory mark
+                if tomark(gstatus_enemy) == next_mark(state[1]):
+                    # Return the current action (ensures the enemy is blocked)
+                    return action
+
+        # If none of the available actions mean ally victory or enemy blocked, return a random action
         return random.choice(ava_actions)
 
-
 def play(max_episode=1):
+    # Set the starting mark (agent who goes first)
     start_mark = 'O'
+    # Create the environment
     env = TicTacToeEnv()
-    agents = [BaseAgent('O'),
-              BaseAgent('X')]
+    # Establish the two agents (O and X)
+    agents = [CleverAgent('O'), RandomAgent('X')]
 
+    # For loop - loop through episodes for max_episodes duration
     for _ in range(max_episode):
+        # Set the starting mark for the environment
         env.set_start_mark(start_mark)
+        # Reset the environment to get the initial state
         state = env.reset()
+
+        # While the game has not be won
         while not env.done:
+            # Get the mark who moves next
             _, mark = state
+            # Show which mark is currently acting
             env.show_turn(True, mark)
             
+            # Get the agent who is acting now
             agent = agent_by_mark(agents, mark)
+            # Get all available actions (actions where there is an open spot on the board)
             ava_actions = env.available_actions()
+            print(f"state: {state}")
+            # Get the agent's action by giving it the available actions
             action = agent.act(state, ava_actions)
+            # Update the environment with the agent's action
             state, reward, done, info = env.step(action)
+            # Render the environment for viewing
             env.render()
 
+        # Show the final results of the game; which mark won
         env.show_result(True, mark, reward)
 
-        # rotate start
+        # Swap the start mark around for fairness (X, O, X, O, etc.)
         start_mark = next_mark(start_mark)
 
 
