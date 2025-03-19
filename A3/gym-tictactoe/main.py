@@ -1,21 +1,25 @@
 import random
+from gym_tictactoe.env import TicTacToeEnv, agent_by_mark, check_game_status, after_action_state, tomark, next_mark
+import algorithms as algos
 
-from gym_tictactoe.env import TicTacToeEnv, agent_by_mark, check_game_status,\
-    after_action_state, tomark, next_mark
-
-# Random Agent - Picks a random action that is valid
+#! Random Agent
+# Picks a random action that is valid
 class RandomAgent(object):
     def __init__(self, mark):
         self.mark = mark
+        self.indicator = "RA"
 
     def act(self, state, ava_actions):
         # Return a random action
         return random.choice(ava_actions)
 
-# Clever Agent - Picks single-move winning actions and single-move blocking actions, else random actions
+
+#! Clever Agent
+# Picks single-move winning actions and single-move blocking actions, else random actions
 class CleverAgent(object):
     def __init__(self, mark):
         self.mark = mark
+        self.indicator = "CA"
 
     def act(self, state, ava_actions):
         # For every action in the provided available actions
@@ -31,10 +35,11 @@ class CleverAgent(object):
                 if tomark(gstatus_ally) == self.mark:
                     # Return the current action (ensures victory for the agent)
                     return action
-                
-        for action in ava_actions:   
+
+        for action in ava_actions:
             # Get the proposed state of the board after the enemy takes the given action
-            nstate_enemy = after_action_state((state[0], next_mark(state[1])), action)
+            nstate_enemy = after_action_state(
+                (state[0], next_mark(state[1])), action)
             # Get the game status (victory X, victory O, no-win, still playing) based on the proposed state
             gstatus_enemy = check_game_status(nstate_enemy[0])
 
@@ -48,9 +53,24 @@ class CleverAgent(object):
         # If none of the available actions mean ally victory or enemy blocked, return a random action
         return random.choice(ava_actions)
 
+
+#! Minimax Agent
+# Applies the Minimax algorithm, using an indicator of max or min
+class MinimaxAgent(object):
+    def __init__(self, mark, player):
+        self.mark = mark
+        self.player = player
+        self.indicator = "MA"
+
+    def act(self, state):
+        score_action = algos.minimax(state, self.player)
+        print(score_action[0])
+        return score_action[0]
+    
+
 def play(max_episode=1):
     # Set the starting mark (agent who goes first)
-    start_mark = 'O'
+    start_mark = 'X'
     # Create the environment
     env = TicTacToeEnv()
     # Establish the two agents (O and X)
@@ -69,14 +89,21 @@ def play(max_episode=1):
             _, mark = state
             # Show which mark is currently acting
             env.show_turn(True, mark)
-            
+
             # Get the agent who is acting now
             agent = agent_by_mark(agents, mark)
-            # Get all available actions (actions where there is an open spot on the board)
-            ava_actions = env.available_actions()
-            print(f"state: {state}")
-            # Get the agent's action by giving it the available actions
-            action = agent.act(state, ava_actions)
+
+            if (agent.indicator == "MA"):
+
+                action = agent.act(state)
+            else:
+                # Get all available actions (actions where there is an open spot on the board)
+                ava_actions = env.available_actions()
+
+
+                # Get the agent's action by giving it the available actions
+                action = agent.act(state, ava_actions)
+
             # Update the environment with the agent's action
             state, reward, done, info = env.step(action)
             # Render the environment for viewing
