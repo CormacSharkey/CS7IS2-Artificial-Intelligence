@@ -9,6 +9,7 @@ from gym_tictactoe.env import TicTacToeEnv, agent_by_mark, next_mark
 class HumanAgent(object):
     def __init__(self, mark):
         self.mark = mark
+        self.indicator = "HA"
 
     def act(self, ava_actions):
         while True:
