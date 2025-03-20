@@ -3,64 +3,70 @@ import gym_tictactoe.env as ttt_env
 
 # alpha beta pruning heuristic idea:
 # calculate the number of "key" positions held by the player (four corners and center)
-# maybe also add negatives of all "key"  positions opponent has   
-    
-# If the maximizer has won, return +1
-# Else if the minimzer has won, return -1
-# Else if the state is 0, return 0
-def score_calc(state, player, terminate_state):
-    # if the current user of minimax (state[1]) has won, return score based on player
+# maybe also add negatives of all "key"  positions opponent has  
 
-    # print(f"Terminate State: {terminate_state}")
+#* Note: state = ((board_state), mark)  
+
+
+#! Score Calc
+# Calculate the Minimax score of a path, given the original agent, their player and the termination status of the game
+def score_calc(state, player, terminate_state):
+    # If the game has terminated with an agent victory
     if (terminate_state > 0):
+        # If the original agent has won
         if (ttt_env.tomark(terminate_state) == state[1]):
+            # If the agent is playing as maximizer, return score = 1, else return score = -1
             if player == "max":
                 return 1
             else:
                 return -1
             
+        # Else, the opponent must have won
+        # If the agent is playing as maximizer, return score = -1, else return score = 1
         if player == "max":
             return -1
         else:
             return 1
-        
+
+    # Else the game must have terminated as a draw, return score = 0
     return 0
-        
+
+
+#! Get Valid Actions
+# Get all available actions for the agent, given the state of the board
 def get_valid_actions(board):
+    # For every id and state value on the board, return (in a list) all ids where the state = 0 (empty state)
     return [i for i, c in enumerate(board) if c == 0]
 
+
+#! Take Action
+# Update the board to reflect an agent's action, given the state of the board, the action and the current agent
 def take_action(state, action, curr_agent):
+    # Store the board state as a list
     board = list(state[0])
+    # Update the board with the action, indicating the current agent is taking it
     board[action] = ttt_env.tocode(curr_agent)
 
+    # Return the correct format of the state (board as tuple, original agent)
     return (tuple(board), state[1])
 
+
+#! Undo Action
+# Undo an action taken on the board, given the state of the board and the action
 def undo_action(state, action):
+    # Store the board state as a list
     board = list(state[0])
+    # Update the board to undo the action
     board[action] = 0
 
+    # Return the correct format of the state (board as tuple, original agent)
     return (tuple(board), state[1])
 
 
 #! Minimax
-# Two opponents; a maximizer player and a minimizer player
-
-# Maximizer has all victories be considered a +1
-# Minimizer has all victories be considered a -1
-# Draws are considered 0 (no victory for anyone)
-
-# For a player:
-# Given the state of the board, provided is has not terminated:
-# Check the available moves and build a tree of possible moves until termination in each case (victory or draw)
-# If the returned score is better than the current score, that path is the best path for the agent
-
-# state = ((board_state), mark)
-
+# Minimax Algorithm - pre-calculates all possible final states from the current board state, and determines the best action to make to ensure victory
+# Works optimally when the opponent is playing optimally (max agent vs. min agent)
 def minimax(state, player, curr_agent):
-    # if the current player is the maximizier
-        # set the best score_action as [-1, -999]
-    # else if the current player i the minimizer
-        # set the best score_action as [-1, -999]
 
     if (player == "max"):
         best_score = [-1, -999]
