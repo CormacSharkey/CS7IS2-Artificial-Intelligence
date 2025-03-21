@@ -1,5 +1,5 @@
 import gym_tictactoe.env as ttt_env
-from agents import RandomAgent, CleverAgent, HumanAgent, MinimaxAgent
+from agents import RandomAgent, CleverAgent, HumanAgent, MinimaxAgent, MinimaxPruneAgent
 
 
 #! Play
@@ -12,11 +12,13 @@ def play(max_episode=1):
 
     # Establish the two agents (O and X)
     # agents = [CleverAgent('O'), RandomAgent('X')]
-    # agents = [MinimaxAgent('O', "max"), MinimaxAgent('X', "min")]
     # agents = [MinimaxAgent('O', "max"), CleverAgent("X")]
     # agents = [HumanAgent('O'), MinimaxAgent("X", "max")]
-    agents = [MinimaxAgent('O', "max"), RandomAgent('X')]
+    # agents = [MinimaxAgent('O', "max"), RandomAgent('X')]
     # agents = [HumanAgent('O'), CleverAgent("X")]
+
+    agents = [MinimaxAgent('O', True), MinimaxAgent('X', False)]
+    # agents = [MinimaxPruneAgent('O', True), MinimaxPruneAgent('X', False)]
 
     # For loop - loop through episodes for max_episodes duration
     for _ in range(max_episode):
@@ -32,26 +34,27 @@ def play(max_episode=1):
             # Show which mark is currently acting
             env.show_turn(True, mark)
 
-            # Get the agent who is acting now
+            # Get the agent acting on the current turn
             agent = ttt_env.agent_by_mark(agents, mark)
 
+            # If the agent is a MinimaxAgent, get the action using only the game state
             if (agent.indicator == "MA"):
                 action = agent.act(state)
 
+            # Else if the agent is a HumanAgent, get the action using only the available moves
             elif (agent.indicator == "HA"):
-                ava_actions = env.available_actions()
-                action = agent.act(ava_actions)
+                action = agent.act(env.available_actions())
 
+            # Else, the agent must be a RandomAgent or a CleverAgent, use the game state and the available moves
             else:
-                ava_actions = env.available_actions()
-                action = agent.act(state, ava_actions)
+                action = agent.act(state, env.available_actions())
 
             # Update the environment with the agent's action
             state, reward, done, info = env.step(action)
             # Render the environment for viewing
             env.render()
 
-        # Show the final results of the game; which mark won
+        # Show the final results of the game; which mark (agent) won
         env.show_result(True, mark, reward)
 
         # Swap the start mark around for fairness (X, O, X, O, etc.)

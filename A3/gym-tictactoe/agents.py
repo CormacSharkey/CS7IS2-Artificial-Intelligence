@@ -1,6 +1,7 @@
 import random
 import gym_tictactoe.env as ttt_env
 import algorithms as algos
+import utils
 
 #! Random Agent
 # Agent that behaves by selecting an available action randomly
@@ -82,11 +83,29 @@ class HumanAgent(object):
 #! Minimax Agent
 # Applies the Minimax algorithm, using an indicator of max or min
 class MinimaxAgent(object):
-    def __init__(self, mark, player):
+    def __init__(self, mark, maxPlayer):
         self.mark = mark
-        self.player = player
+        self.maxPlayer = maxPlayer
         self.indicator = "MA"
 
     def act(self, state):
-        score_action = algos.minimax(state, self.player, self.mark)
+        # Might need to set depth as 9-the remaining moves to make
+        depth = len(utils.get_valid_actions(state[0]))
+        state = (state[0], state[1], self.maxPlayer)
+        score_action = algos.minimax(state, self.maxPlayer, self.mark, depth)
+        return score_action[0]
+    
+#! Minimax Prune Agent
+# Applies the Minimax algorithm w/ Alpha-Beta Pruning, using an indicator of max or min
+class MinimaxPruneAgent(object):
+    def __init__(self, mark, maxPlayer):
+        self.mark = mark
+        self.maxPlayer = maxPlayer
+        self.indicator = "MA"
+
+    def act(self, state):
+        # Might need to set depth as 9-the remaining moves to make
+        depth = len(utils.get_valid_actions(state[0]))
+        state = (state[0], state[1], self.maxPlayer)
+        score_action = algos.minimax_alpha_beta_prune(state, self.maxPlayer, self.mark, depth, -999, 999)
         return score_action[0]
