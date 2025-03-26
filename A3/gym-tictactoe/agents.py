@@ -1,7 +1,9 @@
 import random
+import collections
 import gym_tictactoe.env as ttt_env
 import algorithms as algos
 import utils
+
 
 #! Random Agent
 # Agent that behaves by selecting an available action randomly
@@ -95,6 +97,7 @@ class MinimaxAgent(object):
         score_action = algos.minimax(state, self.maxPlayer, self.mark, depth)
         return score_action[0]
     
+    
 #! Minimax Prune Agent
 # Applies the Minimax algorithm w/ Alpha-Beta Pruning, using an indicator of max or min
 class MinimaxPruneAgent(object):
@@ -109,3 +112,22 @@ class MinimaxPruneAgent(object):
         state = (state[0], state[1], self.maxPlayer)
         score_action = algos.minimax_alpha_beta_prune(state, self.maxPlayer, self.mark, depth, -999, 999)
         return score_action[0]
+    
+
+class QLearningAgent(object):
+    def __init__(self, mark):
+        self.mark = mark
+        self.indicator = "QA"
+        self.qtable = {}
+        self.epsilon = 0.1
+
+        for action in range(0, 9):
+            self.qtable[action] = collections.defaultdict(int)
+
+    def act(self, state):
+        action, self.qtable = algos.qlearnAct(state, self.qtable)
+
+
+        return action
+        
+

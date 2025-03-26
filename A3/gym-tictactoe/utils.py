@@ -1,3 +1,5 @@
+import random
+
 import gym_tictactoe.env as ttt_env
 
 
@@ -123,3 +125,32 @@ def undo_action(state, action):
 
     # Return the correct format of the state (board as tuple, original agent)
     return (tuple(board), state[1], state[2])
+
+
+def find_best_action(state, ava_actions, qtable):
+    # get all the values of the actions that are available, given the current state
+    # find the max value of values, even if its multiple
+
+    # if its multiple, return a random choice of all such actions
+    # else return the best action
+
+    qvalues = [qtable[action][state] for action in ava_actions]
+
+    best_value = 0
+    best_indexes = []
+
+    for idx in range(0, len(qvalues)):
+        if qvalues[idx] > best_value:
+            best_value = qvalues[idx]
+            best_indexes = [idx]
+        
+        elif qvalues[idx] == best_value:
+            best_indexes.append(idx)
+
+    if (len(best_indexes) == 0):
+        best_action = random.choice(ava_actions)
+    else:
+        best_idx = random.choice(best_indexes)
+        best_action = ava_actions[best_idx]
+
+    return best_action
