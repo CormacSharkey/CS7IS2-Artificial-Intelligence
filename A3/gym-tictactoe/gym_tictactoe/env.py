@@ -168,23 +168,31 @@ class TicTacToeEnv(gym.Env):
             if j < 6:
                 showfn(LEFT_PAD + '-----')
 
-    def show_turn(self, human, mark):
-        self._show_turn(print if human else logging.info, mark)
+    def show_turn(self, human, agents, mark):
+        self._show_turn(print if human else logging.info, agents, mark)
 
-    def _show_turn(self, showfn, mark):
-        showfn("{}'s turn.".format(mark))
+    def _show_turn(self, showfn, agents, mark):
+        if (agents[0].mark == mark):
+            showfn("{}'s turn.".format(agents[0].indicator))
+        else:
+            showfn("{}'s turn.".format(agents[1].indicator))
 
-    def show_result(self, human, mark, reward):
-        self._show_result(print if human else logging.info, mark, reward)
+    def show_result(self, human, agents, reward):
+        self._show_result(print if human else logging.info, agents, reward)
 
-    def _show_result(self, showfn, mark, reward):
+    def _show_result(self, showfn, agents, reward):
         status = check_game_status(self.board)
         assert status >= 0
         if status == 0:
             showfn("==== Finished: Draw ====")
         else:
-            msg = "Winner is '{}'!".format(tomark(status))
-            showfn("==== Finished: {} ====".format(msg))
+            if agents[0].mark == tomark(status):
+                msg = "Winner is '{}'!".format(agents[0].indicator)
+                showfn("==== Finished: {} ====".format(msg))
+            else:
+                msg = "Winner is '{}'!".format(agents[1].indicator)
+                showfn("==== Finished: {} ====".format(msg))
+
         showfn('')
 
     def available_actions(self):

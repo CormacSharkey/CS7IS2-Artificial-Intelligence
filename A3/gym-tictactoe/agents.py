@@ -12,7 +12,7 @@ class RandomAgent(object):
         self.mark = mark
         self.indicator = "RA"
 
-    def act(self, state, ava_actions):
+    def act(self, ava_actions):
         # Return a random action from the available actions
         return random.choice(ava_actions)
 
