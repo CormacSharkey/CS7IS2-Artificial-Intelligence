@@ -1,6 +1,6 @@
 import gym_tictactoe.env as ttt_env
-from agents import RandomAgent, CleverAgent, HumanAgent, MinimaxAgent, MinimaxPruneAgent, QLearningAgent
-import algorithms as algos
+from ttt_agents import RandomAgent, CleverAgent, HumanAgent, MinimaxAgent, MinimaxPruneAgent, QLearningAgent
+import ttt_algorithms as algos
 
 
 def play(agents, max_episode=1):
@@ -420,7 +420,7 @@ def trainQlearnAgent(max_episode=1):
 
         prev_state = state
         _, mark = prev_state
-        transition_action = ttt_env.agent_by_mark(agents, mark).act(prev_state)
+        transition_action = ttt_env.agent_by_mark(agents, mark).act(prev_state, True)
 
         score = 0
 
@@ -469,7 +469,7 @@ def trainQlearnAgent(max_episode=1):
 
             _, mark = state
             agent = ttt_env.agent_by_mark(agents, mark)
-            new_action = agent.act(state)
+            new_action = agent.act(state, True)
 
             algos.qlearnUpdate(agents[0].qtable, prev_state, state, transition_action, score)
 
@@ -491,7 +491,7 @@ def main():
     # playMinimaxMinimax(prune=True)
 
 
-    qtable = trainQlearnAgent(100000)
+    qtable = trainQlearnAgent(50000)
 
     print("Training Complete!")
 
@@ -499,7 +499,7 @@ def main():
     # agents[0].qtable = qtable
     # play(agents, 5)
 
-    agents = [QLearningAgent('O'), RandomAgent('X')]
+    agents = [QLearningAgent('O'), CleverAgent('X')]
     agents[0].qtable = qtable
     play(agents, 5)
 

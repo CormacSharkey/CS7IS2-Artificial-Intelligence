@@ -134,7 +134,7 @@ def find_best_action(state, ava_actions, qtable):
     # if its multiple, return a random choice of all such actions
     # else return the best action
 
-    qvalues = [qtable[action][state] for action in ava_actions]
+    qvalues = [qtable[action][state[0]] for action in ava_actions]
 
     best_value = 0
     best_indexes = []

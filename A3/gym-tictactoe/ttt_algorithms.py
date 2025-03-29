@@ -1,7 +1,6 @@
 import random
-
 import gym_tictactoe.env as ttt_env
-import utils
+import ttt_utils
 
 
 # * Note: state = ((board_state), original_mark, original_player)
@@ -20,20 +19,20 @@ def minimax(state, maxPlayer, curr_agent, depth):
 
     # If the game has reached a termination state, compute the state score using the board, the original player and it's mark
     if (ttt_env.check_game_status(state[0]) >= 0):
-        score = [-1, utils.score_calc(state, ttt_env.check_game_status(state[0]))]
+        score = [-1, ttt_utils.score_calc(state, ttt_env.check_game_status(state[0]))]
         return score
 
     # For every available action in the board
-    for action in utils.get_valid_actions(state[0]):
+    for action in ttt_utils.get_valid_actions(state[0]):
 
         # Update the board using the given action and the current agent (mark)
-        state = utils.take_action(state, action, curr_agent)
+        state = ttt_utils.take_action(state, action, curr_agent)
 
         # Call minimax again, switching the current agent and player, and give the newly updated board
         score = minimax(state, not maxPlayer, ttt_env.next_mark(curr_agent), depth-1)
 
         # Undo the given action on the board for the next action to take effect
-        state = utils.undo_action(state, action)
+        state = ttt_utils.undo_action(state, action)
 
         # Update the returned score with the action that yielded it
         score[0] = action
@@ -66,21 +65,21 @@ def minimax_alpha_beta_prune(state, maxPlayer, curr_agent, depth, alpha, beta):
 
     # If the game has reached a termination state, compute the state score using the board, the original player and it's mark
     if (ttt_env.check_game_status(state[0]) >= 0):
-        score = [-1, utils.score_calc(state, ttt_env.check_game_status(state[0]))]
+        score = [-1, ttt_utils.score_calc(state, ttt_env.check_game_status(state[0]))]
         # Return the score
         return score
     
     # For every available action in the board
-    for action in utils.get_valid_actions(state[0]):
+    for action in ttt_utils.get_valid_actions(state[0]):
 
         # Update the board using the given action and the current agent (mark)
-        state = utils.take_action(state, action, curr_agent)
+        state = ttt_utils.take_action(state, action, curr_agent)
             
         # Call minimax again, switching the current agent and player, and give the newly updated board, a reduced depth and alpha, beta
         score = minimax_alpha_beta_prune(state, not maxPlayer, ttt_env.next_mark(curr_agent), depth-1, alpha, beta)
         
         # Undo the given action on the board for the next action to take effect
-        state = utils.undo_action(state, action)
+        state = ttt_utils.undo_action(state, action)
         
         # Update the returned score with the action that yielded it
         score[0] = action
@@ -88,7 +87,7 @@ def minimax_alpha_beta_prune(state, maxPlayer, curr_agent, depth, alpha, beta):
         # If this is the maximizer
         if maxPlayer:
             # The best is the biggest of the best and the score
-            best_score = utils.max_score(best_score, score)
+            best_score = ttt_utils.max_score(best_score, score)
             
             # Alpha is the biggest of the previous alpha and the score
             alpha = max(alpha, score[1])
@@ -100,7 +99,7 @@ def minimax_alpha_beta_prune(state, maxPlayer, curr_agent, depth, alpha, beta):
         # Else, this is the minimizer
         else:
             # The best is the smallest of the best and the score
-            best_score = utils.min_score(best_score, score)
+            best_score = ttt_utils.min_score(best_score, score)
 
             # Beta is the smallest of the previous beta and the score
             beta = min(beta, score[1])
@@ -114,20 +113,20 @@ def minimax_alpha_beta_prune(state, maxPlayer, curr_agent, depth, alpha, beta):
 
 
 #! Tabular Q-Learning Act
-def qlearnAct(state, qtable, epsilon=0.1):
+def qlearnAct(state, qtable, epsilon=0.4):
     # Tabular Q-Learning Reinforcement Learning
 
     # Agent trains by playing games, and builds up a Q-Table of probabilities for every possible action for every possible state
     # After training, agent uses Q-Table as a lookup for what move to perform when faced with a board state 
 
-    ava_actions = utils.get_valid_actions(state[0])
+    ava_actions = ttt_utils.get_valid_actions(state[0])
 
     if random.random() < epsilon:
         best_action = random.choice(ava_actions)
     else:
-        best_action = utils.find_best_action(state, ava_actions, qtable)
+        best_action = ttt_utils.find_best_action(state, ava_actions, qtable)
 
-    return best_action, qtable
+    return best_action, qtable, epsilon - epsilon/50000
 
 # I think this works by updating the previous action with the potential of the next available action, saying that this action can lead to these favourable/unfavourable actions
 def qlearnUpdate(qtable, prev_state, next_state, transition_action, score):
@@ -143,12 +142,12 @@ def qlearnUpdate(qtable, prev_state, next_state, transition_action, score):
     qvalues = []
 
     if next_state:
-        ava_actions = utils.get_valid_actions(next_state[0])
+        ava_actions = ttt_utils.get_valid_actions(next_state[0])
         for action in ava_actions:
-            qvalues.append(qtable[action][next_state])
-        qtable[transition_action][prev_state] += lr*(score + discount*max(qvalues) - qtable[transition_action][prev_state])
+            qvalues.append(qtable[action][next_state[0]])
+        qtable[transition_action][prev_state[0]] += lr*(score + discount*max(qvalues) - qtable[transition_action][prev_state[0]])
 
     else:
-        qtable[transition_action][prev_state] += lr*(score - qtable[transition_action][prev_state])
+        qtable[transition_action][prev_state[0]] += lr*(score - qtable[transition_action][prev_state[0]])
 
     return qtable
