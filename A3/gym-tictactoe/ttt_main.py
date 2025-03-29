@@ -410,7 +410,7 @@ def trainQlearnAgent(max_episode=1):
 
             agent = ttt_env.agent_by_mark(agents, mark)
 
-            transition_action = agent.act(state, env.available_actions())
+            action = agent.act(state, env.available_actions())
 
             # Get the state and reward for the agent's move, and render the maze for the user
             state, reward, done, info = env.step(action)

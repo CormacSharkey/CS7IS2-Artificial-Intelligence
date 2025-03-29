@@ -11,7 +11,6 @@ import numpy as np
 import pygame
 from gym import error
 from gym import spaces
-# from keras.engine.saving import load_model
 
 from gym_connect_four.envs.render import render_board
 
@@ -185,6 +184,83 @@ class ConnectFourEnv(gym.Env):
         self.__window_height = window_height
         self.__rendered_board = self._update_board_render()
 
+    def train_game(self, player1: Player, player2: Player, board: Optional[np.ndarray] = None, render=False, start_player=1) -> ResultType:
+        self.reset()
+
+        self.__current_player = start_player
+
+        cp = lambda: self.__current_player
+
+        def get_current_player():
+            return player1 if cp() == 1 else player2
+        
+        def change_player():
+            self.__current_player *= -1
+            return get_current_player()
+    	
+        if get_current_player().name != "QlearnPlayer":
+            player = get_current_player()
+            transition_action = player.get_next_action()
+            step_result = self._step(transition_action)
+            change_player()
+
+        prev_board = self.board
+        transition_action = get_current_player().get_next_action(True)
+
+        score = 0
+
+        done = False
+
+        while not done:
+            # if render:
+                # self.render()
+
+            step_result = self._step(transition_action)
+            reward = step_result.get_reward(cp())
+            done = step_result.is_done()
+
+            if done:
+                if self.ghost_check_winner(self.board) == cp():
+                    score = 1
+                    break
+                else:
+                    score = 0
+                    break
+
+            player = change_player()
+
+            action = player.get_next_action()
+
+            step_result = self._step(action)
+            reward = step_result.get_reward(cp())
+            done = step_result.is_done()
+
+            if done:
+                if self.ghost_check_winner(self.board) == cp():
+                    score = -1
+                    break
+                else:
+                    score = 0
+                    break
+            
+            player = change_player()
+            new_action = player.get_next_action(True)
+
+            next_board = self.board
+
+            player.update(prev_board, next_board, transition_action, score)
+
+            prev_board = next_board
+            transition_action = new_action
+
+        player1.update(prev_board, None, transition_action, score)
+
+        reward = step_result.get_reward(cp())
+        # if render:
+            # self.render()
+
+        return step_result.res_type
+
     def run_game(self, player1: Player, player2: Player, board: Optional[np.ndarray] = None, render=False, start_player=1) -> ResultType:
         self.reset()
 
@@ -192,14 +268,20 @@ class ConnectFourEnv(gym.Env):
 
         cp = lambda: self.__current_player
 
+        def get_current_player():
+            return player1 if cp() == 1 else player2
+        
         def change_player():
             self.__current_player *= -1
-            return player1 if cp() == 1 else player2
-
-        act = player1.get_next_action()
+            return get_current_player()
+    	
+        player = get_current_player()
+        act = player.get_next_action()
         step_result = self._step(act)
         player = change_player()
+
         done = False
+        
         while not done:
             if render:
                 self.render()
@@ -264,7 +346,7 @@ class ConnectFourEnv(gym.Env):
         for index in list(reversed(range(self.board_shape[0]))):
             if board[index][action] == 0:
                 board[index][action] = player
-                return board
+                return board.copy()
 
     # Returns a tuple of board, reward, done, dict
     def step(self, action: int) -> Tuple[np.ndarray, float, bool, dict]:
@@ -364,8 +446,284 @@ class ConnectFourEnv(gym.Env):
                             image_width=self.__window_width,
                             image_height=self.__window_height)
     
-    def ghost_is_win_state(self, board) -> bool:
-        # Test rows
+    def ghost_heuristic(self, board, original_player) -> int:
+        score = 0
+
+        # Test rows    
+        for i in range(self.board_shape[0]):
+            for j in range(self.board_shape[1] - 3):
+                value = sum(board[i][j:j + 4])
+                if value >= 3:
+                    if original_player[0] == 1:
+                        if original_player[1]:
+                            score += 2
+                        else:
+                            score -= 2
+
+                    else:
+                        if original_player[1]:
+                            score -= 1
+                        else:
+                            score += 1
+                elif value <= -3:
+                    if original_player[0] == -1:
+                        if original_player[1]:
+                            score += 2
+                        else:
+                            score -= 2
+
+                    else:
+                        if original_player[1]:
+                            score -= 1
+                        else:
+                            score += 1
+
+                if value == 2:
+                    if original_player[0] == 1:
+                        if original_player[1]:
+                            score += 1
+                        else:
+                            score -= 1
+
+                    else:
+                        if original_player[1]:
+                            score -= 0.5
+                        else:
+                            score += 0.5
+                elif value <= -2:
+                    if original_player[0] == -1:
+                        if original_player[1]:
+                            score += 1
+                        else:
+                            score -= 1
+
+                    else:
+                        if original_player[1]:
+                            score -= 0.5
+                        else:
+                            score += 0.5
+
+        # Test columns on transpose array
+        reversed_board = [list(i) for i in zip(*board)]
+        for i in range(self.board_shape[1]):
+            for j in range(self.board_shape[0] - 3):
+                value = sum(reversed_board[i][j:j + 4])
+                if value >= 3:
+                    if original_player[0] == 1:
+                        if original_player[1]:
+                            score += 2
+                        else:
+                            score -= 2
+
+                    else:
+                        if original_player[1]:
+                            score -= 1
+                        else:
+                            score += 1
+                elif value <= -3:
+                    if original_player[0] == -1:
+                        if original_player[1]:
+                            score += 2
+                        else:
+                            score -= 2
+
+                    else:
+                        if original_player[1]:
+                            score -= 1
+                        else:
+                            score += 1
+
+                if value == 2:
+                    if original_player[0] == 1:
+                        if original_player[1]:
+                            score += 1
+                        else:
+                            score -= 1
+
+                    else:
+                        if original_player[1]:
+                            score -= 0.5
+                        else:
+                            score += 0.5
+                elif value <= -2:
+                    if original_player[0] == -1:
+                        if original_player[1]:
+                            score += 1
+                        else:
+                            score -= 1
+
+                    else:
+                        if original_player[1]:
+                            score -= 0.5
+                        else:
+                            score += 0.5
+
+        # Test diagonal
+        for i in range(self.board_shape[0] - 3):
+            for j in range(self.board_shape[1] - 3):
+                value = 0
+                for k in range(4):
+                    value += board[i + k][j + k]
+                    if value >= 3:
+                        if original_player[0] == 1:
+                            if original_player[1]:
+                                score += 2
+                            else:
+                                score -= 2
+
+                        else:
+                            if original_player[1]:
+                                score -= 1
+                            else:
+                                score += 1
+                    elif value <= -3:
+                        if original_player[0] == -1:
+                            if original_player[1]:
+                                score += 2
+                            else:
+                                score -= 2
+
+                        else:
+                            if original_player[1]:
+                                score -= 1
+                            else:
+                                score += 1
+
+                    if value == 2:
+                        if original_player[0] == 1:
+                            if original_player[1]:
+                                score += 1
+                            else:
+                                score -= 1
+
+                        else:
+                            if original_player[1]:
+                                score -= 0.5
+                            else:
+                                score += 0.5
+                    elif value <= -2:
+                        if original_player[0] == -1:
+                            if original_player[1]:
+                                score += 1
+                            else:
+                                score -= 1
+
+                        else:
+                            if original_player[1]:
+                                score -= 0.5
+                            else:
+                                score += 0.5
+
+        reversed_board = np.fliplr(board)
+        # Test reverse diagonal
+        for i in range(self.board_shape[0] - 3):
+            for j in range(self.board_shape[1] - 3):
+                value = 0
+                for k in range(4):
+                    value += reversed_board[i + k][j + k]
+                    if value >= 3:
+                        if original_player[0] == 1:
+                            if original_player[1]:
+                                score += 2
+                            else:
+                                score -= 2
+
+                        else:
+                            if original_player[1]:
+                                score -= 1
+                            else:
+                                score += 1
+                    if value <= -3:
+                        if original_player[0] == -1:
+                            if original_player[1]:
+                                score += 2
+                            else:
+                                score -= 2
+
+                        else:
+                            if original_player[1]:
+                                score -= 1
+                            else:
+                                score += 1
+
+                    if value == 2:
+                        if original_player[0] == 1:
+                            if original_player[1]:
+                                score += 1
+                            else:
+                                score -= 1
+
+                        else:
+                            if original_player[1]:
+                                score -= 0.5
+                            else:
+                                score += 0.5
+                    elif value <= -2:
+                        if original_player[0] == -1:
+                            if original_player[1]:
+                                score += 1
+                            else:
+                                score -= 1
+
+                        else:
+                            if original_player[1]:
+                                score -= 0.5
+                            else:
+                                score += 0.5
+
+        return score
+    
+    def ghost_check_winner(self, board) -> int:
+        # Test rows               
+        for i in range(self.board_shape[0]):
+            for j in range(self.board_shape[1] - 3):
+                value = sum(board[i][j:j + 4])
+                if value == 4:
+                    return 1
+                elif value == -4:
+                    return -1
+
+        # Test columns on transpose array
+        reversed_board = [list(i) for i in zip(*board)]
+        for i in range(self.board_shape[1]):
+            for j in range(self.board_shape[0] - 3):
+                value = sum(reversed_board[i][j:j + 4])
+                if value == 4:
+                    return 1
+                elif value == -4:
+                    return -1
+
+        # Test diagonal
+        for i in range(self.board_shape[0] - 3):
+            for j in range(self.board_shape[1] - 3):
+                value = 0
+                for k in range(4):
+                    value += board[i + k][j + k]
+                    if value == 4:
+                        return 1
+                    elif value == -4:
+                        return -1
+
+        reversed_board = np.fliplr(board)
+        # Test reverse diagonal
+        for i in range(self.board_shape[0] - 3):
+            for j in range(self.board_shape[1] - 3):
+                value = 0
+                for k in range(4):
+                    value += reversed_board[i + k][j + k]
+                    if value == 4:
+                        return 1
+                    elif value == -4:
+                        return -1
+                
+        if np.count_nonzero(board[0]) == self.board_shape[1]:
+            return 0
+    
+    def ghost_is_terminal_state(self, board) -> bool:
+        if np.count_nonzero(board[0]) == self.board_shape[1]:
+            return True
+        
+        # Test rows               
         for i in range(self.board_shape[0]):
             for j in range(self.board_shape[1] - 3):
                 value = sum(board[i][j:j + 4])
@@ -437,6 +795,10 @@ class ConnectFourEnv(gym.Env):
                         return True
 
         return False
+
+    def ghost_available_moves(self, board) -> frozenset:
+        return frozenset(
+            (i for i in range(self.board_shape[1]) if board[0][i] == 0))
 
     def available_moves(self) -> frozenset:
         return frozenset(
