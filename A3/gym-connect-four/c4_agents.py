@@ -38,8 +38,9 @@ import gym_connect_four.envs.connect_four_env as gym
 
 #! Random Agent
 class RandomPlayer():
-    def __init__(self, env: gym.ConnectFourEnv, name='RandomPlayer'):
+    def __init__(self, env: gym.ConnectFourEnv, player, name='RandomPlayer'):
         self.env = env
+        self.player = player
         self.name = name
         
     def get_next_action(self):
@@ -49,3 +50,35 @@ class RandomPlayer():
 
         action = random.choice(list(available_moves))
         return action
+    
+#! Clever Agent
+class CleverPlayer():
+    def __init__(self, env: gym.ConnectFourEnv, player, name='CleverPlayer'):
+        self.env = env
+        self.player = player
+        self.name = name
+        
+    def get_next_action(self):
+        available_moves = self.env.available_moves()
+
+        if not available_moves:
+            raise ValueError('Unable to determine a valid move! Maybe invoke at the wrong time?')
+
+        # Check if player can win
+        for action in list(available_moves):
+            board = self.env.ghost_step(self.env.board, action, self.player)
+
+            if self.env.ghost_is_win_state(board):
+                return action
+            
+            
+        for action in available_moves:
+            board = self.env.ghost_step(self.env.board, action, self.player*-1)
+
+            if self.env.ghost_is_win_state(board):
+                return action
+            
+        print("Random Action!")
+        action = random.choice(list(available_moves))
+        return action
+    

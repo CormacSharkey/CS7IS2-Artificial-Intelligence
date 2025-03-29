@@ -259,36 +259,19 @@ class ConnectFourEnv(gym.Env):
             self.render()
 
         return step_result.res_type
+    
+    def ghost_step(self, board, action, player):
+        for index in list(reversed(range(self.board_shape[0]))):
+            if board[index][action] == 0:
+                board[index][action] = player
+                return board
 
     # Returns a tuple of board, reward, done, dict
     def step(self, action: int) -> Tuple[np.ndarray, float, bool, dict]:
-        step_result = self.special_step(action)
+        step_result = self._step(action)
         reward = step_result.get_reward(self.__current_player)
         done = step_result.is_done()
         return self.__board.copy(), reward, done, {}
-
-    def special_step(self, action: int) -> StepResult:
-        result = ResultType.NONE
-
-        if not self.is_valid_action(action):
-            raise Exception(
-                'Unable to determine a valid move! Maybe invoke at the wrong time?'
-            )
-
-        # Check and perform action
-        for index in list(reversed(range(self.board_shape[0]))):
-            if self.__board[index][action] == 0:
-                self.__board[index][action] = self.__current_player
-                break
-
-        # Check if board is completely filled
-        if np.count_nonzero(self.__board[0]) == self.board_shape[1]:
-            result = ResultType.DRAW
-        else:
-            # Check win condition
-            if self.is_win_state():
-                result = ResultType.WIN1 if self.__current_player == 1 else ResultType.WIN2
-        return self.StepResult(result)
 
     def _step(self, action: int) -> StepResult:
         result = ResultType.NONE
@@ -380,6 +363,43 @@ class ConnectFourEnv(gym.Env):
         return render_board(self.__board,
                             image_width=self.__window_width,
                             image_height=self.__window_height)
+    
+    def ghost_is_win_state(self, board) -> bool:
+        # Test rows
+        for i in range(self.board_shape[0]):
+            for j in range(self.board_shape[1] - 3):
+                value = sum(board[i][j:j + 4])
+                if abs(value) == 4:
+                    return True
+
+        # Test columns on transpose array
+        reversed_board = [list(i) for i in zip(*board)]
+        for i in range(self.board_shape[1]):
+            for j in range(self.board_shape[0] - 3):
+                value = sum(reversed_board[i][j:j + 4])
+                if abs(value) == 4:
+                    return True
+
+        # Test diagonal
+        for i in range(self.board_shape[0] - 3):
+            for j in range(self.board_shape[1] - 3):
+                value = 0
+                for k in range(4):
+                    value += board[i + k][j + k]
+                    if abs(value) == 4:
+                        return True
+
+        reversed_board = np.fliplr(board)
+        # Test reverse diagonal
+        for i in range(self.board_shape[0] - 3):
+            for j in range(self.board_shape[1] - 3):
+                value = 0
+                for k in range(4):
+                    value += reversed_board[i + k][j + k]
+                    if abs(value) == 4:
+                        return True
+
+        return False
 
     def is_win_state(self) -> bool:
         # Test rows

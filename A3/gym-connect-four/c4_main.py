@@ -1,13 +1,14 @@
 import gym_connect_four.envs.connect_four_env as gym_env
-from agents import RandomPlayer
+from c4_agents import RandomPlayer, CleverPlayer
 import gym
 import time
 
 def play(max_episode=1):
     env: gym_env.ConnectFourEnv = gym.make("ConnectFour-v0")
 
-    player = RandomPlayer(env, 'RandomPlayer')
-    opponent = RandomPlayer(env, 'OpponentRandomPlayer')
+    player = RandomPlayer(env, 1, 'RandomPlayer')
+    # opponent = RandomPlayer(env, -1, 'OpponentRandomPlayer')
+    opponent = CleverPlayer(env, -1, 'OpponentRandomPlayer')
 
     players = [player, opponent]
 
