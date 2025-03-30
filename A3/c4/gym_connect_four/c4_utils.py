@@ -1,12 +1,14 @@
-import gym_connect_four.envs.connect_four_env as gym
+import c4.gym_connect_four.envs.connect_four_env as gym
 import random
 
 
 def max_score(score1, score2):
     return score1 if score1[1] > score2[1] else score2
 
+
 def min_score(score1, score2):
     return score1 if score1[1] < score2[1] else score2
+
 
 def find_best_action(qtable, board, available_moves):
     tuple_board = tuple(map(tuple, board))
@@ -30,3 +32,17 @@ def find_best_action(qtable, board, available_moves):
         best_action = list(available_moves)[best_idx]
 
     return best_action
+
+def score_calc(env: gym.ConnectFourEnv, board, original_player, weight):
+    if env.ghost_check_winner(board) == original_player[0]:
+        if original_player[1]:
+            return [-1, weight]
+        else:
+            return [-1, -weight]
+    elif env.ghost_check_winner(board) == original_player[0]*-1:
+        if original_player[1]:
+            return [-1, -weight]
+        else:
+            return [-1, weight]
+    else:
+        return [-1, weight/2]

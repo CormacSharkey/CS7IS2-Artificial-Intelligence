@@ -12,91 +12,7 @@ import pygame
 from gym import error
 from gym import spaces
 
-from gym_connect_four.envs.render import render_board
-
-
-class Player(ABC):
-    """ Class used for evaluating the game """
-
-    def __init__(self, env: 'ConnectFourEnv', name='Player'):
-        self.name = name
-        self.env = env
-
-    @abstractmethod
-    def get_next_action(self, state: np.ndarray) -> int:
-        pass
-
-    def learn(self, state, action: int, state_next, reward: int, done: bool) -> None:
-        pass
-
-    def save_model(self, model_prefix: str = None):
-        raise NotImplementedError()
-
-    def load_model(self, model_prefix: str = None):
-        raise NotImplementedError()
-
-    def reset(self, episode: int = 0, side: int = 1) -> None:
-        """
-        Allows a player class to reset it's state before each round
-
-            Parameters
-            ----------
-            episode : which episode we have reached
-            side : 1 if the player is starting or -1 if the player is second
-        """
-        pass
-
-
-class RandomPlayer(Player):
-    def __init__(self, env: 'ConnectFourEnv', name='RandomPlayer', seed: Optional[Hashable] = None):
-        super().__init__(env, name)
-        self._seed = seed
-        # For reproducibility of the random
-        prev_state = random.getstate()
-        random.seed(self._seed)
-        self._state = random.getstate()
-        random.setstate(prev_state)
-
-    def get_next_action(self, state: np.ndarray) -> int:
-        available_moves = self.env.available_moves()
-        if not available_moves:
-            raise ValueError('Unable to determine a valid move! Maybe invoke at the wrong time?')
-
-        # Next operations are needed for reproducibility of the RandomPlayer when inited with seed
-        prev_state = random.getstate()
-        random.setstate(self._state)
-        action = random.choice(list(available_moves))
-        self._state = random.getstate()
-        random.setstate(prev_state)
-        return action
-
-    def reset(self, episode: int = 0, side: int = 1) -> None:
-        # For reproducibility of the random
-        random.seed(self._seed)
-        self._state = random.getstate()
-
-    def save_model(self, model_prefix: str = None):
-        pass
-
-
-class SavedPlayer(Player):
-    def __init__(self, env, name='SavedPlayer', model_prefix=None):
-        super(SavedPlayer, self).__init__(env, name)
-
-        if model_prefix is None:
-            model_prefix = self.name
-
-        self.observation_space = env.observation_space.shape
-        self.action_space = env.action_space.n
-
-        # self.model = load_model(f"{model_prefix}.h5")
-
-    def get_next_action(self, state: np.ndarray) -> int:
-        state = np.reshape(state, [1] + list(self.observation_space))
-        q_values = self.model.predict(state)[0]
-        vs = [(i, q_values[i]) for i in self.env.available_moves()]
-        act = max(vs, key=itemgetter(1))
-        return act[0]
+from c4.gym_connect_four.envs.render import render_board
 
 
 @unique
@@ -184,20 +100,20 @@ class ConnectFourEnv(gym.Env):
         self.__window_height = window_height
         self.__rendered_board = self._update_board_render()
 
-    def train_game(self, player1: Player, player2: Player, board: Optional[np.ndarray] = None, render=False, start_player=1) -> ResultType:
+    def train_game(self, player1, player2, board: Optional[np.ndarray] = None, render=False, start_player=1) -> ResultType:
         self.reset()
 
         self.__current_player = start_player
 
-        cp = lambda: self.__current_player
+        def cp(): return self.__current_player
 
         def get_current_player():
             return player1 if cp() == 1 else player2
-        
+
         def change_player():
             self.__current_player *= -1
             return get_current_player()
-    	
+
         if get_current_player().name != "QlearnPlayer":
             player = get_current_player()
             transition_action = player.get_next_action()
@@ -212,9 +128,6 @@ class ConnectFourEnv(gym.Env):
         done = False
 
         while not done:
-            # if render:
-                # self.render()
-
             step_result = self._step(transition_action)
             reward = step_result.get_reward(cp())
             done = step_result.is_done()
@@ -230,7 +143,6 @@ class ConnectFourEnv(gym.Env):
             player = change_player()
 
             action = player.get_next_action()
-
             step_result = self._step(action)
             reward = step_result.get_reward(cp())
             done = step_result.is_done()
@@ -242,58 +154,51 @@ class ConnectFourEnv(gym.Env):
                 else:
                     score = 0
                     break
-            
+
             player = change_player()
+
             new_action = player.get_next_action(True)
-
             next_board = self.board
-
             player.update(prev_board, next_board, transition_action, score)
-
             prev_board = next_board
             transition_action = new_action
 
         player1.update(prev_board, None, transition_action, score)
-
         reward = step_result.get_reward(cp())
-        # if render:
-            # self.render()
 
         return step_result.res_type
 
-    def run_game(self, player1: Player, player2: Player, board: Optional[np.ndarray] = None, render=False, start_player=1) -> ResultType:
+    def run_game(self, player1, player2, board: Optional[np.ndarray] = None, render=False, start_player=1) -> ResultType:
         self.reset()
 
         self.__current_player = start_player
 
-        cp = lambda: self.__current_player
+        def cp(): return self.__current_player
 
         def get_current_player():
             return player1 if cp() == 1 else player2
-        
+
         def change_player():
             self.__current_player *= -1
             return get_current_player()
-    	
+
         player = get_current_player()
         act = player.get_next_action()
         step_result = self._step(act)
         player = change_player()
 
         done = False
-        
+
         while not done:
             if render:
                 self.render()
                 time.sleep(1)
             step_result = self._step(player.get_next_action())
-
             player = change_player()
 
             reward = step_result.get_reward(cp())
             done = step_result.is_done()
 
-        # player = change_player()
         reward = step_result.get_reward(cp())
         if render:
             self.render()
@@ -301,12 +206,12 @@ class ConnectFourEnv(gym.Env):
 
         return step_result.res_type
 
-    def run(self, player1: Player, player2: Player, board: Optional[np.ndarray] = None, render=False) -> ResultType:
+    def run(self, player1, player2, board: Optional[np.ndarray] = None, render=False) -> ResultType:
         # player1.reset()
         # player2.reset()
         self.reset(board)
 
-        cp = lambda: self.__current_player
+        def cp(): return self.__current_player
 
         def change_player():
             self.__current_player *= -1
@@ -324,7 +229,8 @@ class ConnectFourEnv(gym.Env):
             if render:
                 self.render()
             # act_hist.append(player.get_next_action(self.__board * cp()))
-            step_result = self._step(player.get_next_action(self.__board * cp()))
+            step_result = self._step(
+                player.get_next_action(self.__board * cp()))
             # step_result = self._step(act_hist[-1])
             # state_hist.append(self.__board.copy())
 
@@ -341,7 +247,7 @@ class ConnectFourEnv(gym.Env):
             self.render()
 
         return step_result.res_type
-    
+
     def ghost_step(self, board, action, player):
         for index in list(reversed(range(self.board_shape[0]))):
             if board[index][action] == 0:
@@ -445,11 +351,11 @@ class ConnectFourEnv(gym.Env):
         return render_board(self.__board,
                             image_width=self.__window_width,
                             image_height=self.__window_height)
-    
+
     def ghost_heuristic(self, board, original_player) -> int:
         score = 0
 
-        # Test rows    
+        # Test rows
         for i in range(self.board_shape[0]):
             for j in range(self.board_shape[1] - 3):
                 value = sum(board[i][j:j + 4])
@@ -672,9 +578,9 @@ class ConnectFourEnv(gym.Env):
                                 score += 0.5
 
         return score
-    
+
     def ghost_check_winner(self, board) -> int:
-        # Test rows               
+        # Test rows
         for i in range(self.board_shape[0]):
             for j in range(self.board_shape[1] - 3):
                 value = sum(board[i][j:j + 4])
@@ -715,15 +621,15 @@ class ConnectFourEnv(gym.Env):
                         return 1
                     elif value == -4:
                         return -1
-                
+
         if np.count_nonzero(board[0]) == self.board_shape[1]:
             return 0
-    
+
     def ghost_is_terminal_state(self, board) -> bool:
         if np.count_nonzero(board[0]) == self.board_shape[1]:
             return True
-        
-        # Test rows               
+
+        # Test rows
         for i in range(self.board_shape[0]):
             for j in range(self.board_shape[1] - 3):
                 value = sum(board[i][j:j + 4])

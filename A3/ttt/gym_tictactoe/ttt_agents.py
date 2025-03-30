@@ -1,8 +1,8 @@
 import random
 import collections
-import gym_tictactoe.env as ttt_env
-import ttt_algorithms as algos
-import ttt_utils
+import ttt.gym_tictactoe.env as ttt_env
+import ttt. gym_tictactoe.ttt_algorithms as algos
+import  ttt.gym_tictactoe.ttt_utils as ttt_utils
 
 
 #! Random Agent
@@ -25,35 +25,29 @@ class CleverAgent(object):
         self.indicator = "CA"
 
     def act(self, state, ava_actions):
-        # For every every available action
+        # For every available action (player loop)
         for action in ava_actions:
-            # Get the proposed state of the board after the ally agent takes the given action
+            # Get a future state based on the given action, then get the game status of the state (win, lose, draw)
             nstate_ally = ttt_env.after_action_state(state, action)
-            # Get the game status (victory X, victory O, no-win, still playing) based on the proposed state
             gstatus_ally = ttt_env.check_game_status(nstate_ally[0])
 
-            # If the game status is a victory
+            # If an agent has won, and this agent is the winner, return the action
             if gstatus_ally > 0:
-                # If the ally agent's mark is the victory mark
                 if ttt_env.tomark(gstatus_ally) == self.mark:
-                    # Return the current action (ensures victory for the ally agent)
                     return action
 
-        # For every every available action
+        # For every available action (opponent loop)
         for action in ava_actions:
-            # Get the proposed state of the board after the enemy agent takes the given action
+            # Get a future state based on the given action, then get the game status of the state (win, lose, draw)
             nstate_enemy = ttt_env.after_action_state((state[0], ttt_env.next_mark(state[1])), action)
-            # Get the game status (victory X, victory O, no-win, still playing) based on the proposed state
             gstatus_enemy = ttt_env.check_game_status(nstate_enemy[0])
 
-            # If the game status is a victory
+            # If an agent has won, and the opponent is the winner, return the action
             if gstatus_enemy > 0:
-                # If the enemy agent's mark is the victory mark
                 if ttt_env.tomark(gstatus_enemy) == ttt_env.next_mark(state[1]):
-                    # Return the current action (ensures the enemy agent is blocked)
                     return action
 
-        # If none of the available actions mean ally agent victory or enemy agent blocked, return a random available action
+        # If no winning moves for player or agent are possible, pick randomly
         return random.choice(ava_actions)
     
 
@@ -85,35 +79,31 @@ class HumanAgent(object):
 #! Minimax Agent
 # Applies the Minimax algorithm, using an indicator of max or min
 class MinimaxAgent(object):
-    def __init__(self, mark, maxPlayer):
+    def __init__(self, mark, max_player):
         self.mark = mark
-        self.maxPlayer = maxPlayer
+        self.max_player = max_player
         self.indicator = "MA"
 
     def act(self, state):
-        # Might need to set depth as 9-the remaining moves to make
-        depth = len(ttt_utils.get_valid_actions(state[0]))
-        state = (state[0], state[1], self.maxPlayer)
-        score_action = algos.minimax(state, self.maxPlayer, self.mark, depth)
+        state = (state[0], state[1], self.max_player)
+        score_action = algos.minimax(state, self.max_player, self.mark)
         return score_action[0]
     
     
 #! Minimax Prune Agent
 # Applies the Minimax algorithm w/ Alpha-Beta Pruning, using an indicator of max or min
 class MinimaxPruneAgent(object):
-    def __init__(self, mark, maxPlayer):
+    def __init__(self, mark, max_player):
         self.mark = mark
-        self.maxPlayer = maxPlayer
+        self.max_player = max_player
         self.indicator = "MA"
 
     def act(self, state):
-        # Might need to set depth as 9-the remaining moves to make
-        depth = len(ttt_utils.get_valid_actions(state[0]))
-        state = (state[0], state[1], self.maxPlayer)
-        score_action = algos.minimax_alpha_beta_prune(state, self.maxPlayer, self.mark, depth, -999, 999)
+        state = (state[0], state[1], self.max_player)
+        score_action = algos.minimax_alpha_beta_prune(state, self.max_player, self.mark, -999, 999)
         return score_action[0]
     
-
+#! Qlearning Agent
 class QLearningAgent(object):
     def __init__(self, mark):
         self.mark = mark
@@ -126,9 +116,9 @@ class QLearningAgent(object):
 
     def act(self, state, training=False):
         if training:
-            action, self.qtable, self.epsilon = algos.qlearnAct(state, self.qtable, self.epsilon)
+            action, self.epsilon = algos.qlearnAct(state, self.qtable, self.epsilon)
         else:
-            action, self.qtable, self.epsilon = algos.qlearnAct(state, self.qtable, 0)
+            action, self.epsilon = algos.qlearnAct(state, self.qtable, 0)
 
         return action
         
