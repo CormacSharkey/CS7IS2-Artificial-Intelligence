@@ -31,7 +31,7 @@ def minimax(state, maxPlayer, curr_agent):
         score = minimax(state, not maxPlayer, ttt_env.next_mark(curr_agent))
 
         # Undo the given action on the board for the next action to take effect
-        state = ttt_utils.undo_action(state, action)
+        # state = ttt_utils.undo_action(state, action)
 
         # Update the returned score with the action that yielded it
         score[0] = action
@@ -76,7 +76,7 @@ def minimax_alpha_beta_prune(state, max_player, curr_agent, alpha, beta):
         score = minimax_alpha_beta_prune(state, not max_player, ttt_env.next_mark(curr_agent), alpha, beta)
         
         # Undo the given action on the board for the next action to take effect
-        state = ttt_utils.undo_action(state, action)
+        # state = ttt_utils.undo_action(state, action)
         
         # Update the returned score with the action that yielded it
         score[0] = action

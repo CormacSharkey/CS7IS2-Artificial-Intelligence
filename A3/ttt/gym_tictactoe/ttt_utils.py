@@ -47,17 +47,6 @@ def take_action(state, action, curr_agent):
     return (tuple(board), state[1], state[2])
 
 
-#! Undo Action
-# Undo an action taken on the board, given the state of the board and the action
-def undo_action(state, action):
-    # Update the board to undo the action
-    board = list(state[0])
-    board[action] = 0
-
-    # Return the correct format of the state (board as tuple, original agent)
-    return (tuple(board), state[1], state[2])
-
-
 def find_best_action(state, ava_actions, qtable):
     qvalues = [qtable[action][state[0]] for action in ava_actions]
 
