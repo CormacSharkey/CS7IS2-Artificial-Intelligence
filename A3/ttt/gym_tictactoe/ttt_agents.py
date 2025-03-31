@@ -6,48 +6,45 @@ import  ttt.gym_tictactoe.ttt_utils as ttt_utils
 
 
 #! Random Agent
-# Agent that behaves by selecting an available action randomly
+# Chooses an action of the available randomly
 class RandomAgent(object):
     def __init__(self, mark):
         self.mark = mark
         self.indicator = "RA"
 
     def act(self, ava_actions):
-        # Return a random action from the available actions
         return random.choice(ava_actions)
 
 
 #! Clever Agent
-# Agent that always picks a winning or blocking action if possible, else selects an available action randomly
+# Picks a winning or blocking action, if possible, else picks a random action
 class CleverAgent(object):
     def __init__(self, mark):
         self.mark = mark
         self.indicator = "CA"
 
     def act(self, state, ava_actions):
-        # For every available action (player loop)
         for action in ava_actions:
-            # Get a future state based on the given action, then get the game status of the state (win, lose, draw)
+            # Get the future state and status after an available action by agent
             nstate_ally = ttt_env.after_action_state(state, action)
             gstatus_ally = ttt_env.check_game_status(nstate_ally[0])
 
-            # If an agent has won, and this agent is the winner, return the action
+            # If the agent has won, return the action
             if gstatus_ally > 0:
                 if ttt_env.tomark(gstatus_ally) == self.mark:
                     return action
 
-        # For every available action (opponent loop)
         for action in ava_actions:
-            # Get a future state based on the given action, then get the game status of the state (win, lose, draw)
+            # Get the future state and status after an available action by opponent
             nstate_enemy = ttt_env.after_action_state((state[0], ttt_env.next_mark(state[1])), action)
             gstatus_enemy = ttt_env.check_game_status(nstate_enemy[0])
 
-            # If an agent has won, and the opponent is the winner, return the action
+            # If the opponent has won, return the action
             if gstatus_enemy > 0:
                 if ttt_env.tomark(gstatus_enemy) == ttt_env.next_mark(state[1]):
                     return action
 
-        # If no winning moves for player or agent are possible, pick randomly
+        # If no one wins, return a random action
         return random.choice(ava_actions)
     
 
@@ -77,7 +74,7 @@ class HumanAgent(object):
 
 
 #! Minimax Agent
-# Applies the Minimax algorithm, using an indicator of max or min
+# Chooses an action using Minimax algorithm
 class MinimaxAgent(object):
     def __init__(self, mark, max_player):
         self.mark = mark
@@ -91,7 +88,7 @@ class MinimaxAgent(object):
     
     
 #! Minimax Prune Agent
-# Applies the Minimax algorithm w/ Alpha-Beta Pruning, using an indicator of max or min
+# Chooses an action using Minimax algorithm with alpha-beta pruning
 class MinimaxPruneAgent(object):
     def __init__(self, mark, max_player):
         self.mark = mark
@@ -103,7 +100,9 @@ class MinimaxPruneAgent(object):
         score_action = algos.minimax_alpha_beta_prune(state, self.max_player, self.mark, -999, 999)
         return score_action[0]
     
+
 #! Qlearning Agent
+# Chooses an action using Qlearning and Qtable
 class QLearningAgent(object):
     def __init__(self, mark):
         self.mark = mark
@@ -111,6 +110,7 @@ class QLearningAgent(object):
         self.qtable = {}
         self.epsilon = 1
 
+        # Init Qtable
         for action in range(0, 9):
             self.qtable[action] = collections.defaultdict(int)
 
