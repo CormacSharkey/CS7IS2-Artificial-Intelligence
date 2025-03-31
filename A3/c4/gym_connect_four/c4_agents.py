@@ -6,6 +6,7 @@ import collections
 
 
 #! Random Agent
+# Chooses an action of the available randomly
 class RandomPlayer():
     def __init__(self, env: gym.ConnectFourEnv, player, name='RandomPlayer'):
         self.env = env
@@ -23,6 +24,7 @@ class RandomPlayer():
 
 
 #! Clever Agent
+# Picks a winning or blocking action, if possible, else picks a random action
 class CleverPlayer():
     def __init__(self, env: gym.ConnectFourEnv, player, name='CleverPlayer'):
         self.env = env
@@ -59,6 +61,7 @@ class CleverPlayer():
         
 
 #! Minimax Agent
+# Chooses an action using Minimax algorithm
 class MinimaxPlayer():
     def __init__(self, env: gym.ConnectFourEnv, player, max_player, name='MinimaxPlayer'):
         self.env = env
@@ -74,6 +77,7 @@ class MinimaxPlayer():
 
 
 #! Minimax Prune Agent
+# Chooses an action using Minimax algorithm with alpha-beta pruning
 class MinimaxPrunePlayer():
     def __init__(self, env: gym.ConnectFourEnv, player, max_player, name='MinimaxPrunePlayer'):
         self.env = env
@@ -90,6 +94,7 @@ class MinimaxPrunePlayer():
 
 
 #! Minimax Heuristic Agent
+# Chooses an action using Minimax algorithm an a heuristic
 class MinimaxHeuristicPlayer():
     def __init__(self, env: gym.ConnectFourEnv, player, max_player, name='MinimaxHeuristicPlayer'):
         self.env = env
@@ -105,6 +110,7 @@ class MinimaxHeuristicPlayer():
 
 
 #! Minimax Prune Heuristic Agent
+# Chooses an action using Minimax algorithm with alpha-beta pruning and a heuristic
 class MinimaxPruneHeuristicPlayer():
     def __init__(self, env: gym.ConnectFourEnv, player, max_player, name='MinimaxPruneHeuristicPlayer'):
         self.env = env
@@ -120,6 +126,7 @@ class MinimaxPruneHeuristicPlayer():
 
 
 #! Qlearn Agent
+# Chooses an action using Qlearning and Qtable
 class QlearnPlayer():
     def __init__(self, env: gym.ConnectFourEnv, player, name='QlearnPlayer'):
         self.env = env

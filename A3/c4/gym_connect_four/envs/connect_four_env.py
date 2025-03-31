@@ -100,6 +100,7 @@ class ConnectFourEnv(gym.Env):
         self.__window_height = window_height
         self.__rendered_board = self._update_board_render()
 
+    # Training Gameloop
     def train_game(self, player1, player2, board: Optional[np.ndarray] = None, render=False, start_player=1) -> ResultType:
         self.reset()
 
@@ -168,6 +169,7 @@ class ConnectFourEnv(gym.Env):
 
         return step_result.res_type
 
+    # Run Gameloop
     def run_game(self, player1, player2, board: Optional[np.ndarray] = None, render=False, start_player=1) -> ResultType:
         self.reset()
 
@@ -248,6 +250,7 @@ class ConnectFourEnv(gym.Env):
 
         return step_result.res_type
 
+    # Take a ghost step on a copy of a board
     def ghost_step(self, board, action, player):
         for index in list(reversed(range(self.board_shape[0]))):
             if board[index][action] == 0:
@@ -352,6 +355,7 @@ class ConnectFourEnv(gym.Env):
                             image_width=self.__window_width,
                             image_height=self.__window_height)
 
+    # Calculate a score heuristically using a ghost board
     def ghost_heuristic(self, board, original_player) -> int:
         score = 0
 
@@ -579,6 +583,7 @@ class ConnectFourEnv(gym.Env):
 
         return score
 
+    # Check the winner on a ghost board
     def ghost_check_winner(self, board) -> int:
         # Test rows
         for i in range(self.board_shape[0]):
@@ -625,6 +630,7 @@ class ConnectFourEnv(gym.Env):
         if np.count_nonzero(board[0]) == self.board_shape[1]:
             return 0
 
+    # Check the board is terminal with a ghost board
     def ghost_is_terminal_state(self, board) -> bool:
         if np.count_nonzero(board[0]) == self.board_shape[1]:
             return True
@@ -702,6 +708,7 @@ class ConnectFourEnv(gym.Env):
 
         return False
 
+    # Get the available actions on a ghost board
     def ghost_available_moves(self, board) -> frozenset:
         return frozenset(
             (i for i in range(self.board_shape[1]) if board[0][i] == 0))
