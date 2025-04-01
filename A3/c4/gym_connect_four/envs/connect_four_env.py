@@ -183,10 +183,16 @@ class ConnectFourEnv(gym.Env):
         def change_player():
             self.__current_player *= -1
             return get_current_player()
+        
+        p1_actions = 0
 
         player = get_current_player()
         act = player.get_next_action()
         step_result = self._step(act)
+
+        if get_current_player().player == 1:
+                p1_actions += 1
+
         player = change_player()
 
         done = False
@@ -196,6 +202,10 @@ class ConnectFourEnv(gym.Env):
                 self.render()
                 time.sleep(1)
             step_result = self._step(player.get_next_action())
+
+            if get_current_player().player == 1:
+                p1_actions += 1
+
             player = change_player()
 
             reward = step_result.get_reward(cp())
@@ -206,7 +216,7 @@ class ConnectFourEnv(gym.Env):
             self.render()
             time.sleep(5)
 
-        return step_result.res_type
+        return step_result.res_type, p1_actions
 
     def run(self, player1, player2, board: Optional[np.ndarray] = None, render=False) -> ResultType:
         # player1.reset()
@@ -363,7 +373,7 @@ class ConnectFourEnv(gym.Env):
         for i in range(self.board_shape[0]):
             for j in range(self.board_shape[1] - 3):
                 value = sum(board[i][j:j + 4])
-                if value >= 3:
+                if value == 3:
                     if original_player[0] == 1:
                         if original_player[1]:
                             score += 2
@@ -375,7 +385,7 @@ class ConnectFourEnv(gym.Env):
                             score -= 1
                         else:
                             score += 1
-                elif value <= -3:
+                elif value == -3:
                     if original_player[0] == -1:
                         if original_player[1]:
                             score += 2
@@ -400,7 +410,7 @@ class ConnectFourEnv(gym.Env):
                             score -= 0.5
                         else:
                             score += 0.5
-                elif value <= -2:
+                elif value == -2:
                     if original_player[0] == -1:
                         if original_player[1]:
                             score += 1
@@ -418,7 +428,7 @@ class ConnectFourEnv(gym.Env):
         for i in range(self.board_shape[1]):
             for j in range(self.board_shape[0] - 3):
                 value = sum(reversed_board[i][j:j + 4])
-                if value >= 3:
+                if value == 3:
                     if original_player[0] == 1:
                         if original_player[1]:
                             score += 2
@@ -430,7 +440,7 @@ class ConnectFourEnv(gym.Env):
                             score -= 1
                         else:
                             score += 1
-                elif value <= -3:
+                elif value == -3:
                     if original_player[0] == -1:
                         if original_player[1]:
                             score += 2
@@ -455,7 +465,7 @@ class ConnectFourEnv(gym.Env):
                             score -= 0.5
                         else:
                             score += 0.5
-                elif value <= -2:
+                elif value == -2:
                     if original_player[0] == -1:
                         if original_player[1]:
                             score += 1
@@ -474,7 +484,7 @@ class ConnectFourEnv(gym.Env):
                 value = 0
                 for k in range(4):
                     value += board[i + k][j + k]
-                    if value >= 3:
+                    if value == 3:
                         if original_player[0] == 1:
                             if original_player[1]:
                                 score += 2
@@ -486,7 +496,7 @@ class ConnectFourEnv(gym.Env):
                                 score -= 1
                             else:
                                 score += 1
-                    elif value <= -3:
+                    elif value == -3:
                         if original_player[0] == -1:
                             if original_player[1]:
                                 score += 2
@@ -511,7 +521,7 @@ class ConnectFourEnv(gym.Env):
                                 score -= 0.5
                             else:
                                 score += 0.5
-                    elif value <= -2:
+                    elif value == -2:
                         if original_player[0] == -1:
                             if original_player[1]:
                                 score += 1
@@ -531,7 +541,7 @@ class ConnectFourEnv(gym.Env):
                 value = 0
                 for k in range(4):
                     value += reversed_board[i + k][j + k]
-                    if value >= 3:
+                    if value == 3:
                         if original_player[0] == 1:
                             if original_player[1]:
                                 score += 2
@@ -543,7 +553,7 @@ class ConnectFourEnv(gym.Env):
                                 score -= 1
                             else:
                                 score += 1
-                    if value <= -3:
+                    if value == -3:
                         if original_player[0] == -1:
                             if original_player[1]:
                                 score += 2
@@ -568,7 +578,7 @@ class ConnectFourEnv(gym.Env):
                                 score -= 0.5
                             else:
                                 score += 0.5
-                    elif value <= -2:
+                    elif value == -2:
                         if original_player[0] == -1:
                             if original_player[1]:
                                 score += 1

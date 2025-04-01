@@ -177,23 +177,30 @@ class TicTacToeEnv(gym.Env):
         else:
             showfn("{}'s turn.".format(agents[1].indicator))
 
-    def show_result(self, human, agents, reward):
-        self._show_result(print if human else logging.info, agents, reward)
+    def show_result(self, human, agents, reward, render=True):
+        return self._show_result(print if human else logging.info, agents, reward, render)
 
-    def _show_result(self, showfn, agents, reward):
+    def _show_result(self, showfn, agents, reward, render=True):
         status = check_game_status(self.board)
         assert status >= 0
         if status == 0:
-            showfn("==== Finished: Draw ====")
+            if render:
+                showfn("==== Finished: Draw ====")
+                showfn('')
+            return 0
         else:
             if agents[0].mark == tomark(status):
-                msg = "Winner is '{}'!".format(agents[0].indicator)
-                showfn("==== Finished: {} ====".format(msg))
+                if render:
+                    msg = "Winner is '{}'!".format(agents[0].indicator)
+                    showfn("==== Finished: {} ====".format(msg))
+                    showfn('')
+                return 1
             else:
-                msg = "Winner is '{}'!".format(agents[1].indicator)
-                showfn("==== Finished: {} ====".format(msg))
-
-        showfn('')
+                if render:
+                    msg = "Winner is '{}'!".format(agents[1].indicator)
+                    showfn("==== Finished: {} ====".format(msg))
+                    showfn('')
+                return 2
 
     def available_actions(self):
         return [i for i, c in enumerate(self.board) if c == 0]

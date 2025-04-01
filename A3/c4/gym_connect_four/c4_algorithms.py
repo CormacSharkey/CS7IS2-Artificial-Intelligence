@@ -98,7 +98,7 @@ def minimax_heuristic(env: gym.ConnectFourEnv, board, original_player, curr_play
         return utils.score_calc(env, board, original_player, 5)
 
     # If the depth-limit has been reached, heuristically calculate a score
-    if depth >= 6:
+    if depth >= 5:
         best_score[1] = env.ghost_heuristic(board, original_player)
         return best_score
 
@@ -137,7 +137,7 @@ def minimax_prune_heuristic(env: gym.ConnectFourEnv, board, original_player, cur
         return utils.score_calc(env, board, original_player, 5)
 
     # If the depth-limit has been reached, heuristically calculate a score
-    if depth >= 6:
+    if depth >= 5:
         best_score[1] = env.ghost_heuristic(board, original_player)
         return best_score
 
