@@ -17,7 +17,7 @@ def minimax(env: gym.ConnectFourEnv, board, original_player, curr_player, max_pl
 
     # If the game is over, return the state score
     if env.ghost_is_terminal_state(board):
-        return utils.score_calc(env, board, original_player, 1)
+        return utils.score_calc(env, board, max_player, 1)
 
     # Take every available action as the current agent, then recursively use minimax again
     for action in env.ghost_available_moves(board):
@@ -54,7 +54,7 @@ def minimax_prune(env: gym.ConnectFourEnv, board, original_player, curr_player, 
 
     # If the game is over, return the state score
     if env.ghost_is_terminal_state(board):
-        return utils.score_calc(env, board, original_player, 1)
+        return utils.score_calc(env, board, max_player, 1)
 
     # Take every available action as the current agent, then recursively use minimax again
     for action in env.ghost_available_moves(board):
@@ -95,7 +95,7 @@ def minimax_heuristic(env: gym.ConnectFourEnv, board, original_player, curr_play
 
     # If the game is over, return the state score
     if env.ghost_is_terminal_state(board):
-        return utils.score_calc(env, board, original_player, 5)
+        return utils.score_calc(env, board, max_player, 5)
 
     # If the depth-limit has been reached, heuristically calculate a score
     if depth >= 5:
@@ -134,7 +134,7 @@ def minimax_prune_heuristic(env: gym.ConnectFourEnv, board, original_player, cur
 
     # If the game is over, return the state score
     if env.ghost_is_terminal_state(board):
-        return utils.score_calc(env, board, original_player, 5)
+        return utils.score_calc(env, board, max_player, 5)
 
     # If the depth-limit has been reached, heuristically calculate a score
     if depth >= 5:

@@ -36,12 +36,12 @@ class CleverAgent(object):
 
         for action in ava_actions:
             # Get the future state and status after an available action by opponent
-            nstate_enemy = ttt_env.after_action_state((state[0], ttt_env.next_mark(state[1])), action)
+            nstate_enemy = ttt_env.after_action_state((state[0], ttt_env.next_mark(self.mark)), action)
             gstatus_enemy = ttt_env.check_game_status(nstate_enemy[0])
 
             # If the opponent has won, return the action
             if gstatus_enemy > 0:
-                if ttt_env.tomark(gstatus_enemy) == ttt_env.next_mark(state[1]):
+                if ttt_env.tomark(gstatus_enemy) == ttt_env.next_mark(self.mark):
                     return action
 
         # If no one wins, return a random action

@@ -242,7 +242,7 @@ def c4_play(env: c4_env.ConnectFourEnv, players, max_episode=1, render=True):
 def c4_train(env: c4_env.ConnectFourEnv, max_episode=1):
     start_time = time.time()
     player = c4_agents.QlearnPlayer(env, 1, 'QlearnPlayer')
-    opponent = c4_agents.RandomPlayer(env, -1, 'OpponentRandomPlayer')
+    opponent = c4_agents.CleverPlayer(env, -1, 'OpponentCleverPlayer')
 
     players = [player, opponent]
 

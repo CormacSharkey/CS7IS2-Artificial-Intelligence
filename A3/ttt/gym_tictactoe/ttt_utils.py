@@ -14,20 +14,14 @@ def min_score(score1, score2):
 
 #! Score Calc
 # Calculate the best score given the current player
-def score_calc(state, terminate_state):
-    # If the game has terminated with an agent victory
+def score_calc(max_player, terminate_state):
+    # The player opposite to curr_player has won or its a draw
+    # Check if a draw, if not, return a score using the loser's max_player status (opposite score because winner assumed to be opposite max_player)
     if (terminate_state > 0):
-        if (ttt_env.tomark(terminate_state) == state[1]):
-            # The best score depends on max_player
-            if (state[2]):
-                return [-1, 1]
-            else:
-                return [-1, -1]
+        if (max_player):
+            return [-1, -1]
         else:
-            if (state[2]):
-                return [-1, -1]
-            else:
-                return [-1, 1]
+            return [-1, 1]
     else:
         return [-1, 0]
         

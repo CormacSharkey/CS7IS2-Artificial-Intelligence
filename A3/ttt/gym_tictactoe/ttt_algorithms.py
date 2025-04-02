@@ -16,14 +16,14 @@ def minimax(state, max_player, curr_agent):
 
     # If the game is over, return the state score
     if (ttt_env.check_game_status(state[0]) >= 0):
-        return ttt_utils.score_calc(state, ttt_env.check_game_status(state[0]))
+        return ttt_utils.score_calc(max_player, ttt_env.check_game_status(state[0]))
 
     # Take every available action as the current agent, then recursively use minimax again
     for action in ttt_utils.get_valid_actions(state[0]):
 
         # Take an action and call minimax
-        state = ttt_utils.take_action(state, action, curr_agent)
-        score = minimax(state, not max_player, ttt_env.next_mark(curr_agent))
+        new_state = ttt_utils.take_action(state, action, curr_agent)
+        score = minimax(new_state, not max_player, ttt_env.next_mark(curr_agent))
 
         # Update the returned score
         score[0] = action
@@ -50,14 +50,14 @@ def minimax_alpha_beta_prune(state, max_player, curr_agent, alpha, beta):
 
     # If the game is over, return the state score
     if (ttt_env.check_game_status(state[0]) >= 0):
-        return ttt_utils.score_calc(state, ttt_env.check_game_status(state[0]))
+        return ttt_utils.score_calc(max_player, ttt_env.check_game_status(state[0]))
     
     # Take every available action as the current agent, then recursively use minimax again
     for action in ttt_utils.get_valid_actions(state[0]):
 
         # Take an action and call minimax prune
-        state = ttt_utils.take_action(state, action, curr_agent)
-        score = minimax_alpha_beta_prune(state, not max_player, ttt_env.next_mark(curr_agent), alpha, beta)
+        next_state = ttt_utils.take_action(state, action, curr_agent)
+        score = minimax_alpha_beta_prune(next_state, not max_player, ttt_env.next_mark(curr_agent), alpha, beta)
         
         # Update the returned score
         score[0] = action
