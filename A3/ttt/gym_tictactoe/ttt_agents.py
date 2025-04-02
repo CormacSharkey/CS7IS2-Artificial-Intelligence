@@ -104,11 +104,13 @@ class MinimaxPruneAgent(object):
 #! Qlearning Agent
 # Chooses an action using Qlearning and Qtable
 class QLearningAgent(object):
-    def __init__(self, mark):
+    def __init__(self, mark, learning_rate, discount):
         self.mark = mark
         self.indicator = "QA"
         self.qtable = {}
         self.epsilon = 1
+        self.learning_rate = learning_rate
+        self.discount = discount
 
         # Init Qtable
         for action in range(0, 9):

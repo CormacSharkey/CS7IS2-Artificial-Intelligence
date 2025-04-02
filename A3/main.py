@@ -86,7 +86,7 @@ def ttt_play(agents, max_episode=1, render=True):
     return [p1_matches, p2_matches, p1_actions/max_episode]
 
 
-def ttt_train(max_episode=1):
+def ttt_train(max_episode=1, lr = 0.5, discount = 0.9):
     start_time = time.time()
 
     # Set starting mark and create env
@@ -159,7 +159,7 @@ def ttt_train(max_episode=1):
             agent = ttt_env.agent_by_mark(agents, mark)
             new_action = agent.act(state, True)
 
-            ttt_algos.qlearnUpdate(agents[0].qtable, prev_state, state, transition_action, score)
+            ttt_algos.qlearnUpdate(agents[0].qtable, prev_state, state, transition_action, score, lr, discount)
 
             prev_state = state
             transition_action = new_action
@@ -333,13 +333,13 @@ def test_bench_flow():
     
     ###################################################################################################
 
-    #* Run TTT MC for 1000 games, get results
+    #* Run TTT MC for 100 games, get results
     print("Running ttt: MC")
     playerMC = [ttt_agents.MinimaxAgent('O', True), ttt_agents.CleverAgent('X')]
     metrics = ttt_play(playerMC, episodes, False)
     print(f"ttt MC metrics: {metrics}")
 
-    #* Run TTT MPC for 1000 games, get results
+    #* Run TTT MPC for 100 games, get results
     print("Running ttt: MPC")
     playerMPC = [ttt_agents.MinimaxPruneAgent('O', True), ttt_agents.CleverAgent('X')]
     metrics = ttt_play(playerMPC, episodes, False)
@@ -347,14 +347,7 @@ def test_bench_flow():
 
     ###################################################################################################
 
-    #* Run TTT QC, vary training length of 100, 1000, 10000, 50000
-    print("Running ttt: QC 100")
-    playersQC = [ttt_agents.QLearningAgent('O'), ttt_agents.CleverAgent('X')]
-    playersQC[0].qtable, time = ttt_train(100)
-    metrics = ttt_play(playersQC, episodes, False)
-    metrics.append(time)
-    print(f"ttt QC 100 metrics: {metrics}")
-
+    #* Run TTT QC, vary training length of 1000, 5000, 10000, 25000, 50000
     print("Running ttt: QC 1000")
     playersQC = [ttt_agents.QLearningAgent('O'), ttt_agents.CleverAgent('X')]
     playersQC[0].qtable, time = ttt_train(1000)
@@ -362,12 +355,26 @@ def test_bench_flow():
     metrics.append(time)
     print(f"ttt QC 1000 metrics: {metrics}")
 
+    print("Running ttt: QC 5000")
+    playersQC = [ttt_agents.QLearningAgent('O'), ttt_agents.CleverAgent('X')]
+    playersQC[0].qtable, time = ttt_train(5000)
+    metrics = ttt_play(playersQC, episodes, False)
+    metrics.append(time)
+    print(f"ttt QC 5000 metrics: {metrics}")
+
     print("Running ttt: QC 10000")
     playersQC = [ttt_agents.QLearningAgent('O'), ttt_agents.CleverAgent('X')]
     playersQC[0].qtable, time = ttt_train(10000)
     metrics = ttt_play(playersQC, episodes, False)
     metrics.append(time)
     print(f"ttt QC 10000 metrics: {metrics}")
+
+    print("Running ttt: QC 25000")
+    playersQC = [ttt_agents.QLearningAgent('O'), ttt_agents.CleverAgent('X')]
+    playersQC[0].qtable, time = ttt_train(25000)
+    metrics = ttt_play(playersQC, episodes, False)
+    metrics.append(time)
+    print(f"ttt QC 25000 metrics: {metrics}")
 
     print("Running ttt: QC 50000")
     playersQC = [ttt_agents.QLearningAgent('O'), ttt_agents.CleverAgent('X')]
@@ -378,34 +385,101 @@ def test_bench_flow():
 
     ###################################################################################################
 
-    #* Run TTT QM, vary training length of 100, 1000, 10000, 50000
-    print("Running ttt: QM")
-    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
-    playersQM[0].qtable, time = ttt_train(100)
-    metrics = ttt_play(playersQM, episodes, False)
+    print("Running ttt: QC 50000 lr=0.75")
+    playersQC = [ttt_agents.QLearningAgent('O'), ttt_agents.CleverAgent('X')]
+    playersQC[0].qtable, time = ttt_train(50000, lr=0.75)
+    metrics = ttt_play(playersQC, episodes, False)
     metrics.append(time)
-    print(f"ttt QM 100 metrics: {metrics}")
+    print(f"ttt QC 50000 lr=0.75 metrics: {metrics}")
 
-    print("Running ttt: QM")
+    print("Running ttt: QC 50000 lr = 0.25")
+    playersQC = [ttt_agents.QLearningAgent('O'), ttt_agents.CleverAgent('X')]
+    playersQC[0].qtable, time = ttt_train(50000, lr = 0.25)
+    metrics = ttt_play(playersQC, episodes, False)
+    metrics.append(time)
+    print(f"ttt QC 50000 lr = 0.25 metrics: {metrics}")
+
+    print("Running ttt: QC 50000 discount = 0.5")
+    playersQC = [ttt_agents.QLearningAgent('O'), ttt_agents.CleverAgent('X')]
+    playersQC[0].qtable, time = ttt_train(50000, discount=0.5)
+    metrics = ttt_play(playersQC, episodes, False)
+    metrics.append(time)
+    print(f"ttt QC 50000 discount = 0.5metrics: {metrics}")
+
+    print("Running ttt: QC 50000 discount = 0.1")
+    playersQC = [ttt_agents.QLearningAgent('O'), ttt_agents.CleverAgent('X')]
+    playersQC[0].qtable, time = ttt_train(50000, discount = 0.1)
+    metrics = ttt_play(playersQC, episodes, False)
+    metrics.append(time)
+    print(f"ttt QC 50000 lr = 0.1 metrics: {metrics}")
+
+    ###################################################################################################
+
+    #* Run TTT QM, vary training length of 1000, 5000, 10000, 25000, 50000
+    print("Running ttt: QM 1000")
     playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
     playersQM[0].qtable, time = ttt_train(1000)
     metrics = ttt_play(playersQM, episodes, False)
     metrics.append(time)
     print(f"ttt QM 1000 metrics: {metrics}")
 
-    print("Running ttt: QM")
+    print("Running ttt: QM 5000")
+    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
+    playersQM[0].qtable, time = ttt_train(5000)
+    metrics = ttt_play(playersQM, episodes, False)
+    metrics.append(time)
+    print(f"ttt QM 5000 metrics: {metrics}")
+
+    print("Running ttt: QM 10000")
     playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
     playersQM[0].qtable, time = ttt_train(10000)
     metrics = ttt_play(playersQM, episodes, False)
     metrics.append(time)
     print(f"ttt QM 10000 metrics: {metrics}")
 
-    print("Running ttt: QM")
+    print("Running ttt: QM 25000")
+    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
+    playersQM[0].qtable, time = ttt_train(25000)
+    metrics = ttt_play(playersQM, episodes, False)
+    metrics.append(time)
+    print(f"ttt QM 25000 metrics: {metrics}")
+
+    print("Running ttt: QM 50000")
     playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
     playersQM[0].qtable, time = ttt_train(50000)
     metrics = ttt_play(playersQM, episodes, False)
     metrics.append(time)
     print(f"ttt QM 50000 metrics: {metrics}")
+
+    ###################################################################################################
+
+    print("Running ttt: QM 50000 lr = 0.25")
+    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
+    playersQM[0].qtable, time = ttt_train(50000, lr = 0.25)
+    metrics = ttt_play(playersQM, episodes, False)
+    metrics.append(time)
+    print(f"ttt QM 50000 lr = 0.25 metrics: {metrics}")
+
+    print("Running ttt: QM 50000 lr = 0.75")
+    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
+    playersQM[0].qtable, time = ttt_train(50000, lr = 0.75)
+    metrics = ttt_play(playersQM, episodes, False)
+    metrics.append(time)
+    print(f"ttt QM 50000 lr = 0.75 metrics: {metrics}")
+
+    print("Running ttt: QM 50000 discount = 0.5")
+    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
+    playersQM[0].qtable, time = ttt_train(50000, discount = 0.5)
+    metrics = ttt_play(playersQM, episodes, False)
+    metrics.append(time)
+    print(f"ttt QM 50000 discount = 0.5 metrics: {metrics}")
+
+    print("Running ttt: QM 50000 discount = 0.1")
+    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
+    playersQM[0].qtable, time = ttt_train(50000, discount = 0.1)
+    metrics = ttt_play(playersQM, episodes, False)
+    metrics.append(time)
+    print(f"ttt QM 50000 discount = 0.1 metrics: {metrics}")
 
     ###################################################################################################
     ###################################################################################################

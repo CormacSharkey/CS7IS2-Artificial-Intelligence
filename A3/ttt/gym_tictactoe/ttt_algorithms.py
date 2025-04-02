@@ -96,10 +96,10 @@ def qlearnAct(state, qtable, epsilon=0.4):
 
 
 #! Qlearn Update Algorithm
-def qlearnUpdate(qtable, prev_state, next_state, transition_action, score):
+def qlearnUpdate(qtable, prev_state, next_state, transition_action, score, lr=0.5, discount=0.9):
     # Declare parameters
-    lr = 0.5
-    discount = 0.9
+    # lr = 0.5
+    # discount = 0.9
     qvalues = []
 
     # If this isn't the terminal update, update with next_state
