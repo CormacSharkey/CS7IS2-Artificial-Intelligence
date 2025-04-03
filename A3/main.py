@@ -385,6 +385,7 @@ def test_bench_flow():
 
     ###################################################################################################
 
+    #* Varying parameters
     print("Running ttt: QC 50000 lr=0.75")
     playersQC = [ttt_agents.QLearningAgent('O'), ttt_agents.CleverAgent('X')]
     playersQC[0].qtable, time = ttt_train(50000, lr=0.75)
@@ -404,7 +405,7 @@ def test_bench_flow():
     playersQC[0].qtable, time = ttt_train(50000, discount=0.5)
     metrics = ttt_play(playersQC, episodes, False)
     metrics.append(time)
-    print(f"ttt QC 50000 discount = 0.5metrics: {metrics}")
+    print(f"ttt QC 50000 discount = 0.5 metrics: {metrics}")
 
     print("Running ttt: QC 50000 discount = 0.1")
     playersQC = [ttt_agents.QLearningAgent('O'), ttt_agents.CleverAgent('X')]
@@ -417,35 +418,35 @@ def test_bench_flow():
 
     #* Run TTT QM, vary training length of 1000, 5000, 10000, 25000, 50000
     print("Running ttt: QM 1000")
-    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
+    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxPruneAgent('X', True)]
     playersQM[0].qtable, time = ttt_train(1000)
     metrics = ttt_play(playersQM, episodes, False)
     metrics.append(time)
     print(f"ttt QM 1000 metrics: {metrics}")
 
     print("Running ttt: QM 5000")
-    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
+    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxPruneAgent('X', True)]
     playersQM[0].qtable, time = ttt_train(5000)
     metrics = ttt_play(playersQM, episodes, False)
     metrics.append(time)
     print(f"ttt QM 5000 metrics: {metrics}")
 
     print("Running ttt: QM 10000")
-    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
+    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxPruneAgent('X', True)]
     playersQM[0].qtable, time = ttt_train(10000)
     metrics = ttt_play(playersQM, episodes, False)
     metrics.append(time)
     print(f"ttt QM 10000 metrics: {metrics}")
 
     print("Running ttt: QM 25000")
-    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
+    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxPruneAgent('X', True)]
     playersQM[0].qtable, time = ttt_train(25000)
     metrics = ttt_play(playersQM, episodes, False)
     metrics.append(time)
     print(f"ttt QM 25000 metrics: {metrics}")
 
     print("Running ttt: QM 50000")
-    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
+    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxPruneAgent('X', True)]
     playersQM[0].qtable, time = ttt_train(50000)
     metrics = ttt_play(playersQM, episodes, False)
     metrics.append(time)
@@ -454,28 +455,28 @@ def test_bench_flow():
     ###################################################################################################
 
     print("Running ttt: QM 50000 lr = 0.25")
-    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
+    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxPruneAgent('X', True)]
     playersQM[0].qtable, time = ttt_train(50000, lr = 0.25)
     metrics = ttt_play(playersQM, episodes, False)
     metrics.append(time)
     print(f"ttt QM 50000 lr = 0.25 metrics: {metrics}")
 
     print("Running ttt: QM 50000 lr = 0.75")
-    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
+    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxPruneAgent('X', True)]
     playersQM[0].qtable, time = ttt_train(50000, lr = 0.75)
     metrics = ttt_play(playersQM, episodes, False)
     metrics.append(time)
     print(f"ttt QM 50000 lr = 0.75 metrics: {metrics}")
 
     print("Running ttt: QM 50000 discount = 0.5")
-    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
+    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxPruneAgent('X', True)]
     playersQM[0].qtable, time = ttt_train(50000, discount = 0.5)
     metrics = ttt_play(playersQM, episodes, False)
     metrics.append(time)
     print(f"ttt QM 50000 discount = 0.5 metrics: {metrics}")
 
     print("Running ttt: QM 50000 discount = 0.1")
-    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxAgent('X', True)]
+    playersQM = [ttt_agents.QLearningAgent('O'), ttt_agents.MinimaxPruneAgent('X', True)]
     playersQM[0].qtable, time = ttt_train(50000, discount = 0.1)
     metrics = ttt_play(playersQM, episodes, False)
     metrics.append(time)
@@ -485,48 +486,37 @@ def test_bench_flow():
     ###################################################################################################
     ###################################################################################################
 
-    #* Run C4 MC no heuristic for 30 mins, determine the number of states it saw
-    #* Run C4 MPC no heursitic for 30 mins, determine the number of states it saw
+    # #* Run C4 MC no heuristic for 30 mins, determine the number of states it saw
+    # env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0")
+    # print("Running c4: MC")
+    # playerMC = [c4_agents.MinimaxPlayer(env, 1, True, "MinimaxPlayer"), c4_agents.CleverPlayer(env, -1, "OpponentCleverPlayer")]
+    # metrics = c4_play(env, playerMC, episodes, False)
+    # print(f"c4 MC metrics: {metrics}")
+
+    # #* Run C4 MPC no heursitic for 30 mins, determine the number of states it saw
+    # env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0")
+    # print("Running c4: MC")
+    # playerMC = [c4_agents.MinimaxPrunePlayer(env, 1, True, "MinimaxPrunePlayer"), c4_agents.CleverPlayer(env, -1, "OpponentCleverPlayer")]
+    # metrics = c4_play(env, playerMC, episodes, False)
+    # print(f"c4 MC metrics: {metrics}")
 
     ###################################################################################################
 
-    #* Run C4 MC for 1000 games, get results
+    #* Run C4 MC for 100=0 games, get results
     env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0")
     print("Running c4: MC")
     playerMC = [c4_agents.MinimaxHeuristicPlayer(env, 1, True, "MinimaxHeuristicPlayer"), c4_agents.CleverPlayer(env, -1, "OpponentCleverPlayer")]
     metrics = c4_play(env, playerMC, episodes, False)
-    print(f"c4 MC metrics: {metrics}")
+    print(f"c4 MHC metrics: {metrics}")
 
     #* Run C4 MPC for 1000 games, get results
     env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0")
     print("Running c4: MPC")
     playerMPC = [c4_agents.MinimaxPruneHeuristicPlayer(env, 1, True, "MinimaxPruneHeuristicPlayer"), c4_agents.CleverPlayer(env, -1, "OpponentCleverPlayer")]
     metrics = c4_play(env, playerMPC, episodes, False)
-    print(f"c4 MPC metrics: {metrics}")
+    print(f"c4 MPHC metrics: {metrics}")
 
     ###################################################################################################
-
-    #* Run QC full board, vary training length of 100, 1000, 10000, 50000, for 1000 games, get results
-    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0")
-    print("Running c4: QC 100 full")
-    playersQC = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.CleverPlayer(env, -1, "OpponentCleverPlayer")]
-    playersQC[0].qtable = c4_train(env, 100)
-    metrics = c4_play(env, playersQC, episodes, False)
-    print(f"c4 QC metrics 100 full: {metrics}")
-
-    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0")
-    print("Running c4: QC 1000 full")
-    playersQC = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.CleverPlayer(env, -1, "OpponentCleverPlayer")]
-    playersQC[0].qtable = c4_train(env, 1000)
-    metrics = c4_play(env, playersQC, episodes, False)
-    print(f"c4 QC metrics 1000 full: {metrics}")
-    
-    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0")
-    print("Running c4: QC 10000 full")
-    playersQC = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.CleverPlayer(env, -1, "OpponentCleverPlayer")]
-    playersQC[0].qtable = c4_train(env, 10000)
-    metrics = c4_play(env, playersQC, episodes, False)
-    print(f"c4 QC metrics 10000 full: {metrics}")
 
     env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0")
     print("Running c4: QC 50000 full")
@@ -538,28 +528,35 @@ def test_bench_flow():
     ###################################################################################################
 
     #* Run QC reduced board, vary training length of 100, 1000, 10000, 50000, for 1000 games, get results
-    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0", board_shape=(5,7))
-    print("Running c4: QC 100 reduced")
-    playersQC = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.CleverPlayer(env, -1, "OpponentCleverPlayer")]
-    playersQC[0].qtable = c4_train(env, 100)
-    metrics = c4_play(env, playersQC, episodes, False)
-    print(f"c4 QC metrics 100 reduced: {metrics}")
-
-    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0", board_shape=(5,7))
+    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0", board_shape=(4,5))
     print("Running c4: QC 1000 reduced")
     playersQC = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.CleverPlayer(env, -1, "OpponentCleverPlayer")]
     playersQC[0].qtable = c4_train(env, 1000)
     metrics = c4_play(env, playersQC, episodes, False)
     print(f"c4 QC metrics 1000 reduced: {metrics}")
-    
-    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0", board_shape=(5,7))
+
+    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0", board_shape=(4,5))
+    print("Running c4: QC 5000 reduced")
+    playersQC = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.CleverPlayer(env, -1, "OpponentCleverPlayer")]
+    playersQC[0].qtable = c4_train(env, 5000)
+    metrics = c4_play(env, playersQC, episodes, False)
+    print(f"c4 QC metrics 5000 reduced: {metrics}")
+
+    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0", board_shape=(4,5))
     print("Running c4: QC 10000 reduced")
     playersQC = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.CleverPlayer(env, -1, "OpponentCleverPlayer")]
     playersQC[0].qtable = c4_train(env, 10000)
     metrics = c4_play(env, playersQC, episodes, False)
     print(f"c4 QC metrics 10000 reduced: {metrics}")
+    
+    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0", board_shape=(4,5))
+    print("Running c4: QC 25000 reduced")
+    playersQC = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.CleverPlayer(env, -1, "OpponentCleverPlayer")]
+    playersQC[0].qtable = c4_train(env, 25000)
+    metrics = c4_play(env, playersQC, episodes, False)
+    print(f"c4 QC metrics 25000 reduced: {metrics}")
 
-    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0", board_shape=(5,7))
+    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0", board_shape=(4,5))
     print("Running c4: QC 50000 reduced")
     playersQC = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.CleverPlayer(env, -1, "OpponentCleverPlayer")]
     playersQC[0].qtable = c4_train(env, 50000)
@@ -568,65 +565,50 @@ def test_bench_flow():
 
     ###################################################################################################
 
-    #* Run QM full board, vary training length of 100, 1000, 10000, 50000, for 1000 games
     env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0")
-    print("Running c4: QM 100 full")
-    playersQM = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.MinimaxHeuristicPlayer(env, -1, True, "OpponentMinimaxHeuristicPlayer")]
-    playersQM[0].qtable = c4_train(env, 100)
-    metrics = c4_play(env, playersQM, episodes, False)
-    print(f"c4 QM metrics 100 full: {metrics}")
-
-    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0")
-    print("Running c4: QM 1000 full")
-    playersQM = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.MinimaxHeuristicPlayer(env, -1, True, "OpponentMinimaxHeuristicPlayer")]
-    playersQM[0].qtable = c4_train(env, 1000)
-    metrics = c4_play(env, playersQM, episodes, False)
-    print(f"c4 QM metrics 1000 full: {metrics}")
-
-    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0")
-    print("Running c4: QM 10000 full")
-    playersQM = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.MinimaxHeuristicPlayer(env, -1, True, "OpponentMinimaxHeuristicPlayer")]
-    playersQM[0].qtable = c4_train(env, 10000)
-    metrics = c4_play(env, playersQM, episodes, False)
-    print(f"c4 QM metrics 10000 full: {metrics}")
-
-    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0")
-    print("Running c4: QM 50000 full")
-    playersQM = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.MinimaxHeuristicPlayer(env, -1, True, "OpponentMinimaxHeuristicPlayer")]
+    print("Running c4: QMPH 50000 full")
+    playersQM = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.MinimaxPruneHeuristicPlayer(env, -1, True, "OpponentMinimaxPruneHeuristicPlayer")]
     playersQM[0].qtable = c4_train(env, 50000)
     metrics = c4_play(env, playersQM, episodes, False)
-    print(f"c4 QM metrics 50000 full: {metrics}")
+    print(f"c4 QMPH metrics 50000 full: {metrics}")
 
     ###################################################################################################
 
-    #* Run QM reduced board, vary training length of 100, 1000, 10000, 50000, for 1000 games
+    #* Run QMPH reduced board, vary training length of 1000, 10000, 50000, for 1000 games
     env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0", board_shape=(5,7))
-    print("Running c4: QM 100 reduced")
-    playersQM = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.MinimaxHeuristicPlayer(env, -1, True, "OpponentMinimaxHeuristicPlayer")]
-    playersQM[0].qtable = c4_train(env, 100)
-    metrics = c4_play(env, playersQM, episodes, False)
-    print(f"c4 QM metrics 100 reduced: {metrics}")
-
-    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0", board_shape=(5,7))
-    print("Running c4: QM 1000 reduced")
-    playersQM = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.MinimaxHeuristicPlayer(env, -1, True, "OpponentMinimaxHeuristicPlayer")]
+    print("Running c4: QMPH 1000 reduced")
+    playersQM = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.MinimaxPruneHeuristicPlayer(env, -1, True, "OpponentMinimaxPruneHeuristicPlayer")]
     playersQM[0].qtable = c4_train(env, 1000)
     metrics = c4_play(env, playersQM, episodes, False)
-    print(f"c4 QM metrics 1000 reduced: {metrics}")
+    print(f"c4 QMPH metrics 1000 reduced: {metrics}")
 
     env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0", board_shape=(5,7))
-    print("Running c4: QM 10000 reduced")
-    playersQM = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.MinimaxHeuristicPlayer(env, -1, True, "OpponentMinimaxHeuristicPlayer")]
+    print("Running c4: QMPH 5000 reduced")
+    playersQM = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.MinimaxPruneHeuristicPlayer(env, -1, True, "OpponentMinimaxPruneHeuristicPlayer")]
+    playersQM[0].qtable = c4_train(env, 5000)
+    metrics = c4_play(env, playersQM, episodes, False)
+    print(f"c4 QMPH metrics 5000 reduced: {metrics}")
+
+    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0", board_shape=(5,7))
+    print("Running c4: QMPH 10000 reduced")
+    playersQM = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.MinimaxPruneHeuristicPlayer(env, -1, True, "OpponentMinimaxPruneHeuristicPlayer")]
     playersQM[0].qtable = c4_train(env, 10000)
     metrics = c4_play(env, playersQM, episodes, False)
-    print(f"c4 QM metrics 10000 reduced: {metrics}")
+    print(f"c4 QMPH metrics 10000 reduced: {metrics}")
 
     env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0", board_shape=(5,7))
-    print("Running c4: QM 50000 reduced")
-    playersQM = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.MinimaxHeuristicPlayer(env, -1, True, "OpponentMinimaxHeuristicPlayer")]
+    print("Running c4: QMPH 25000 reduced")
+    playersQM = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.MinimaxPruneHeuristicPlayer(env, -1, True, "OpponentMinimaxPruneHeuristicPlayer")]
+    playersQM[0].qtable = c4_train(env, 25000)
+    metrics = c4_play(env, playersQM, episodes, False)
+    print(f"c4 QMPH metrics 25000 reduced: {metrics}")
+
+    env: c4_env.ConnectFourEnv = gym.make("ConnectFour-v0", board_shape=(5,7))
+    print("Running c4: QMPH 50000 reduced")
+    playersQM = [c4_agents.QlearnPlayer(env, 1, "QlearnPlayer"), c4_agents.MinimaxPruneHeuristicPlayer(env, -1, True, "OpponentMinimaxPruneHeuristicPlayer")]
     playersQM[0].qtable = c4_train(env, 50000)
     metrics = c4_play(env, playersQM, episodes, False)
-    print(f"c4 QM metrics 50000 reduced: {metrics}")
+    print(f"c4 QMPH metrics 50000 reduced: {metrics}")
 
     ###################################################################################################
 
