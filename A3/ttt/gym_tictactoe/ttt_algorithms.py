@@ -7,7 +7,7 @@ import ttt.gym_tictactoe.ttt_utils as ttt_utils
 
 
 #! Minimax Algorithm
-def minimax(state, max_player, curr_agent):
+def minimax(state, max_player, curr_agent, agent):
     # Best score depends on max_player
     if max_player:
         best_score = [-1, -999]
@@ -23,7 +23,8 @@ def minimax(state, max_player, curr_agent):
 
         # Take an action and call minimax
         new_state = ttt_utils.take_action(state, action, curr_agent)
-        score = minimax(new_state, not max_player, ttt_env.next_mark(curr_agent))
+        agent.move_count += 1
+        score = minimax(new_state, not max_player, ttt_env.next_mark(curr_agent), agent)
 
         # Update the returned score
         score[0] = action
@@ -41,7 +42,7 @@ def minimax(state, max_player, curr_agent):
 
 
 #! Minimax Alpha Beta Prune Algorithm
-def minimax_alpha_beta_prune(state, max_player, curr_agent, alpha, beta):
+def minimax_alpha_beta_prune(state, max_player, curr_agent, alpha, beta, agent):
     # Best score depends on max_player
     if max_player:
         best_score = [-1, -999]
@@ -57,7 +58,8 @@ def minimax_alpha_beta_prune(state, max_player, curr_agent, alpha, beta):
 
         # Take an action and call minimax prune
         next_state = ttt_utils.take_action(state, action, curr_agent)
-        score = minimax_alpha_beta_prune(next_state, not max_player, ttt_env.next_mark(curr_agent), alpha, beta)
+        agent.move_count += 1
+        score = minimax_alpha_beta_prune(next_state, not max_player, ttt_env.next_mark(curr_agent), alpha, beta, agent)
         
         # Update the returned score
         score[0] = action

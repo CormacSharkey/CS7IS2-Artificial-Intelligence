@@ -8,7 +8,7 @@ import random
 
 
 #! Minimax Algorithm
-def minimax(env: gym.ConnectFourEnv, board, original_player, curr_player, max_player, depth):
+def minimax(env: gym.ConnectFourEnv, board, original_player, curr_player, max_player, depth, agent):
     # Best score depends on max_player
     if max_player:
         best_score = [-1, -999]
@@ -24,7 +24,9 @@ def minimax(env: gym.ConnectFourEnv, board, original_player, curr_player, max_pl
 
         # Take an action and call minimax
         next_board = env.ghost_step(board, action, curr_player)
-        score = minimax(env, next_board, original_player, curr_player*-1, not max_player, depth+1)
+        agent.move_count += 1
+        print(agent.move_count)
+        score = minimax(env, next_board, original_player, curr_player*-1, not max_player, depth+1, agent)
         del next_board
 
         # Update the returned score
@@ -44,7 +46,7 @@ def minimax(env: gym.ConnectFourEnv, board, original_player, curr_player, max_pl
 
 
 #! Minimax Alpha Beta Prune Algorithm
-def minimax_prune(env: gym.ConnectFourEnv, board, original_player, curr_player, max_player, depth, alpha, beta):
+def minimax_prune(env: gym.ConnectFourEnv, board, original_player, curr_player, max_player, depth, alpha, beta, agent):
     # Best score depends on max_player
     if max_player:
         best_score = [-1, -999]
@@ -61,7 +63,9 @@ def minimax_prune(env: gym.ConnectFourEnv, board, original_player, curr_player, 
 
         # Take an action and call minimax prune
         next_board = env.ghost_step(board, action, curr_player)
-        score = minimax_prune(env, next_board, original_player, curr_player*-1, not max_player, depth+1, alpha, beta)
+        agent.move_count += 1
+        print(agent.move_count)
+        score = minimax_prune(env, next_board, original_player, curr_player*-1, not max_player, depth+1, alpha, beta, agent)
         del next_board
 
         # Update the returned score
@@ -86,7 +90,7 @@ def minimax_prune(env: gym.ConnectFourEnv, board, original_player, curr_player, 
 
 
 #! Minimax Heuristic Algorithm
-def minimax_heuristic(env: gym.ConnectFourEnv, board, original_player, curr_player, max_player, depth):
+def minimax_heuristic(env: gym.ConnectFourEnv, board, original_player, curr_player, max_player, depth, agent):
     # Best score depends on max_player
     if max_player:
         best_score = [-1, -999]
@@ -107,7 +111,8 @@ def minimax_heuristic(env: gym.ConnectFourEnv, board, original_player, curr_play
 
         # Take an action and call minimax
         next_board = env.ghost_step(board, action, curr_player)
-        score = minimax_heuristic(env, next_board, original_player, curr_player*-1, not max_player, depth+1)
+        agent.move_count += 1
+        score = minimax_heuristic(env, next_board, original_player, curr_player*-1, not max_player, depth+1, agent)
         del next_board
 
         # Update the returned score
@@ -125,7 +130,7 @@ def minimax_heuristic(env: gym.ConnectFourEnv, board, original_player, curr_play
     return best_score
 
 #! Minimax Alpha Beta Prune Heuristic Algorithm
-def minimax_prune_heuristic(env: gym.ConnectFourEnv, board, original_player, curr_player, max_player, depth, alpha, beta):
+def minimax_prune_heuristic(env: gym.ConnectFourEnv, board, original_player, curr_player, max_player, depth, alpha, beta, agent):
     # Best score depends on max_player
     if max_player:
         best_score = [-1, -999]
@@ -144,7 +149,8 @@ def minimax_prune_heuristic(env: gym.ConnectFourEnv, board, original_player, cur
     # Take every available action as the current agent, then recursively use minimax again
     for action in env.ghost_available_moves(board):
         next_board = env.ghost_step(board, action, curr_player)
-        score = minimax_prune_heuristic(env, next_board, original_player, curr_player*-1, not max_player, depth+1, alpha, beta)
+        agent.move_count += 1
+        score = minimax_prune_heuristic(env, next_board, original_player, curr_player*-1, not max_player, depth+1, alpha, beta, agent)
         del next_board
 
         # Update the returned score

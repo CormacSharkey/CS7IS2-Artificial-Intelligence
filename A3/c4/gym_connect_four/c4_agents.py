@@ -68,10 +68,11 @@ class MinimaxPlayer():
         self.player = player
         self.max_player = max_player
         self.name = name
+        self.move_count = 0
 
     def get_next_action(self):
         depth = 0
-        action = algos.minimax(self.env, self.env.board, [self.player, self.max_player], self.player, self.max_player, depth)
+        action = algos.minimax(self.env, self.env.board, [self.player, self.max_player], self.player, self.max_player, depth, self)
 
         return action[0]
 
@@ -84,11 +85,12 @@ class MinimaxPrunePlayer():
         self.player = player
         self.max_player = max_player
         self.name = name
+        self.move_count = 0
 
     def get_next_action(self):
         depth = 0
         action = algos.minimax_prune(self.env, self.env.board, [
-                                     self.player, self.max_player], self.player, self.max_player, depth, -999, 999)
+                                     self.player, self.max_player], self.player, self.max_player, depth, -999, 999, self)
 
         return action[0]
 
@@ -101,10 +103,11 @@ class MinimaxHeuristicPlayer():
         self.player = player
         self.max_player = max_player
         self.name = name
+        self.move_count = 0
 
     def get_next_action(self):
         depth = 0
-        action = algos.minimax_heuristic(self.env, self.env.board, [self.player, self.max_player], self.player, self.max_player, depth)
+        action = algos.minimax_heuristic(self.env, self.env.board, [self.player, self.max_player], self.player, self.max_player, depth, self)
 
         return action[0]
 
@@ -117,11 +120,12 @@ class MinimaxPruneHeuristicPlayer():
         self.player = player
         self.max_player = max_player
         self.name = name
+        self.move_count = 0
 
     def get_next_action(self):
         depth = 0
         action = algos.minimax_prune_heuristic(self.env, self.env.board, [
-                                               self.player, self.max_player], self.player, self.max_player, depth, -999, 999)
+                                               self.player, self.max_player], self.player, self.max_player, depth, -999, 999, self)
         return action[0]
 
 

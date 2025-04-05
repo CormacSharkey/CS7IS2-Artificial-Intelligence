@@ -80,10 +80,11 @@ class MinimaxAgent(object):
         self.mark = mark
         self.max_player = max_player
         self.indicator = "MA"
+        self.move_count = 0
 
     def act(self, state):
         state = (state[0], state[1], self.max_player)
-        score_action = algos.minimax(state, self.max_player, self.mark)
+        score_action = algos.minimax(state, self.max_player, self.mark, self)
         return score_action[0]
     
     
@@ -94,23 +95,22 @@ class MinimaxPruneAgent(object):
         self.mark = mark
         self.max_player = max_player
         self.indicator = "MA"
+        self.move_count = 0
 
     def act(self, state):
         state = (state[0], state[1], self.max_player)
-        score_action = algos.minimax_alpha_beta_prune(state, self.max_player, self.mark, -999, 999)
+        score_action = algos.minimax_alpha_beta_prune(state, self.max_player, self.mark, -999, 999, self)
         return score_action[0]
     
 
 #! Qlearning Agent
 # Chooses an action using Qlearning and Qtable
 class QLearningAgent(object):
-    def __init__(self, mark, learning_rate, discount):
+    def __init__(self, mark):
         self.mark = mark
         self.indicator = "QA"
         self.qtable = {}
         self.epsilon = 1
-        self.learning_rate = learning_rate
-        self.discount = discount
 
         # Init Qtable
         for action in range(0, 9):
