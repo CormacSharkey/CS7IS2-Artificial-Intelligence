@@ -148,6 +148,8 @@ def minimax_prune_heuristic(env: gym.ConnectFourEnv, board, original_player, cur
 
     # Take every available action as the current agent, then recursively use minimax again
     for action in env.ghost_available_moves(board):
+
+        # Take an action and call minimax
         next_board = env.ghost_step(board, action, curr_player)
         agent.move_count += 1
         score = minimax_prune_heuristic(env, next_board, original_player, curr_player*-1, not max_player, depth+1, alpha, beta, agent)

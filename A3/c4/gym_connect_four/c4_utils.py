@@ -3,7 +3,7 @@ import random
 
 
 #! Max Score
-# GEt the mac score of the two arrays
+# Get the mac score of the two arrays
 def max_score(score1, score2):
     return score1 if score1[1] > score2[1] else score2
 
@@ -47,16 +47,6 @@ def find_best_action(qtable, board, available_moves):
 #! Score Calc
 # Calculate the best score given the current player
 def score_calc(env: gym.ConnectFourEnv, board, max_player, weight):
-    # # If the game has terminated with an agent victory
-    # if env.ghost_check_winner(board) == curr_player*-1:
-    #         # The best score depends on max_player
-    #     if max_player:
-    #         return [-1, weight]
-    #     else:
-    #         return [-1, -weight]
-    # # If the game has terminated with an opponent victory
-    # elif env.ghost_check_winner(board) == curr_player:
-
     # The player opposite to curr_player has won or its a draw
     # Check if a draw, if not, return a score using the loser's max_player status (opposite score because winner assumed to be opposite max_player)
     if env.ghost_check_winner(board) != 0:

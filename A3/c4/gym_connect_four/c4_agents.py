@@ -6,7 +6,7 @@ import collections
 
 
 #! Random Agent
-# Chooses an action of the available randomly
+# Chooses an action of the available actions randomly
 class RandomPlayer():
     def __init__(self, env: gym.ConnectFourEnv, player, name='RandomPlayer'):
         self.env = env
@@ -48,6 +48,7 @@ class CleverPlayer():
 
             del board
 
+        # Check if opponent can win
         for action in available_moves:
             board = self.env.ghost_step(self.env.board, action, self.player*-1)
 
@@ -73,7 +74,6 @@ class MinimaxPlayer():
     def get_next_action(self):
         depth = 0
         action = algos.minimax(self.env, self.env.board, [self.player, self.max_player], self.player, self.max_player, depth, self)
-
         return action[0]
 
 
@@ -89,14 +89,12 @@ class MinimaxPrunePlayer():
 
     def get_next_action(self):
         depth = 0
-        action = algos.minimax_prune(self.env, self.env.board, [
-                                     self.player, self.max_player], self.player, self.max_player, depth, -999, 999, self)
-
+        action = algos.minimax_prune(self.env, self.env.board, [self.player, self.max_player], self.player, self.max_player, depth, -999, 999, self)
         return action[0]
 
 
 #! Minimax Heuristic Agent
-# Chooses an action using Minimax algorithm an a heuristic
+# Chooses an action using Minimax algorithm and a heuristic
 class MinimaxHeuristicPlayer():
     def __init__(self, env: gym.ConnectFourEnv, player, max_player, name='MinimaxHeuristicPlayer'):
         self.env = env
@@ -108,7 +106,6 @@ class MinimaxHeuristicPlayer():
     def get_next_action(self):
         depth = 0
         action = algos.minimax_heuristic(self.env, self.env.board, [self.player, self.max_player], self.player, self.max_player, depth, self)
-
         return action[0]
 
 
@@ -124,8 +121,7 @@ class MinimaxPruneHeuristicPlayer():
 
     def get_next_action(self):
         depth = 0
-        action = algos.minimax_prune_heuristic(self.env, self.env.board, [
-                                               self.player, self.max_player], self.player, self.max_player, depth, -999, 999, self)
+        action = algos.minimax_prune_heuristic(self.env, self.env.board, [self.player, self.max_player], self.player, self.max_player, depth, -999, 999, self)
         return action[0]
 
 
