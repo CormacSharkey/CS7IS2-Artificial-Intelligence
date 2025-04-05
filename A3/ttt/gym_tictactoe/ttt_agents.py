@@ -2,11 +2,10 @@ import random
 import collections
 import ttt.gym_tictactoe.env as ttt_env
 import ttt. gym_tictactoe.ttt_algorithms as algos
-import  ttt.gym_tictactoe.ttt_utils as ttt_utils
 
 
 #! Random Agent
-# Chooses an action of the available randomly
+# Chooses an action of the available actions randomly
 class RandomAgent(object):
     def __init__(self, mark):
         self.mark = mark

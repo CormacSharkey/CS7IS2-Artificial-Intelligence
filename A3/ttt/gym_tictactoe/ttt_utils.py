@@ -6,11 +6,13 @@ import ttt.gym_tictactoe.env as ttt_env
 # Get the max score of two arrays
 def max_score(score1, score2):
     return score1 if score1[1] > score2[1] else score2
-    
+
+
 #! Min Score
 # Get the min score of two arrays
 def min_score(score1, score2):
     return score1 if score1[1] < score2[1] else score2
+
 
 #! Score Calc
 # Calculate the best score given the current player
